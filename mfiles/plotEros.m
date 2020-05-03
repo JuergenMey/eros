@@ -33,7 +33,7 @@ function [B,varargout] = plotEros(variable,varargin)
 %                  'slope'      Stream slope
 %                  'capacity'   Stream capacity
 %                  'stock'      Sediment stock
-%                  'hum'        unknown
+%                  'hum'        the water discharge on the topography
 %                  'rain'       Sources(>0) and sinks (-1)
 %
 % INPUT (optional)
@@ -83,16 +83,16 @@ function [B,varargout] = plotEros(variable,varargin)
 % 
 % Davy, P., & Lague, D. (2009). Fluvial erosion/transport equation of land-
 %  scape evolution models revisited. Journal of Geophysical Research, 114, 
-%  1–16. https://doi.org/10.1029/2008JF001146.
+%  116. https://doi.org/10.1029/2008JF001146.
 % 
 % Davy, P., Croissant, T., & Lague, D. (2017). A precipiton method to cal-
 %  culate river hydrodynamics, with applications to flood prediction, land-
 %  scape evolution models, and braiding instabilities. Journal of 
-%  Geophysical Research: Earth Surface, 122, 1491–1512. 
+%  Geophysical Research: Earth Surface, 122, 14911512. 
 %  https://doi.org/10.1002/2016JF004156
 % 
 %
-% Author: Jürgen Mey (juemey[at]uni-potsdam.de)
+% Author: Jrgen Mey (juemey[at]uni-potsdam.de)
 % Date: 28. May, 2020
 
 p = inputParser;
@@ -148,6 +148,17 @@ switch variable
         iylabel = 'Shear stress (Pa)';
 end
 
+% determine timesteps
+T = dir('*.txt');
+opts = detectImportOptions(T.name);
+A = readtable(T.name,opts);
+
+D=table2cell(A(:,end));
+idx=find(contains(D,'W'));
+
+A = table2array(A(:,1:end-1));
+t = vertcat(0,A(idx,1));
+
 Z = dir(['*.',filetype]);
 [~,index] = sortrows({Z.date}.');
 Z = Z(index);
@@ -158,9 +169,9 @@ for i = 1:length(Z)
 end
 switch mode
     case 'average'
-        plot(meanB)
+        plot(t,meanB)
         ylabel(iylabel);
-        xlabel('time');
+        xlabel('time (s)');
     case 'movie2'
         H = dir('*.alt');
         Z = dir(['*.',filetype]);
@@ -175,7 +186,7 @@ switch mode
             c = colorbar;
             c.Label.String = iylabel;
             caxis([nanmin(B(:)),nanmax(B(:))])
-            title(['Time = ',num2str(i)])
+            title(['Time = ',num2str(t(i)),' s'])
             F(i) = getframe(gcf);
             close all
         end
@@ -201,7 +212,7 @@ switch mode
             c.Label.String = 'Elevation (m)';
             colormap(landcolor)
 %             caxis([nanmin(B(:)),nanmax(B(:))])
-            title(['Time = ',num2str(i)])
+            title(['Time = ',num2str(t(i)),' s'])
             F(i) = getframe(gcf);
             close all
         end
