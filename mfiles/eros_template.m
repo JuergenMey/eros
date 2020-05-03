@@ -53,7 +53,7 @@ LEM.inflow = 10;                        % [m3s-1]water inflow at source cells
 LEM.initial_sediment_stock = 0.1;       % [%] volumetric sediment inflow at source cells)
 
 LEM.start = 2000;                       % start time
-LEM.stop = 200000;                       % length of model run
+LEM.stop = 200000;                       % [s] length of model run
 LEM.draw = 2000;                        % output interval
 
 LEM.seedtime = 100;                     % unknown parameter
