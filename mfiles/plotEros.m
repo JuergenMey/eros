@@ -154,7 +154,7 @@ opts = detectImportOptions(T.name);
 A = readtable(T.name,opts);
 
 D=table2cell(A(:,end));
-idx=find(contains(D,'W'));
+idx = contains(D,'W');
 
 A = table2array(A(:,1:end-1));
 t = vertcat(0,A(idx,1));
