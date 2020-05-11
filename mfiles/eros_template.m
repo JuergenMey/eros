@@ -32,7 +32,7 @@ LEM.sed = sed;
 % rain.Z(1,44:60)=-1;
 % GRIDobj2grd(rain,['./Topo/',dem.name,'.rain']);
 % 
-% %SED (sediment thickness)
+% % SED (sediment thickness)
 % sed = dem*0;
 % sed = sed+10;
 % GRIDobj2grd(sed,['./Topo/',dem.name,'.sed']);
@@ -49,18 +49,18 @@ LEM.experiment = 'single_thread';                % Project name
 LEM.ErosPath = 'C:\\Projects\\EROS';    % Path to Eros.exe
 LEM.outfolder = 'Results';              % folder to store results in
 
-LEM.inflow = 10;                        % [m3s-1]water inflow at source cells
-LEM.initial_sediment_stock = 0.1;       % [%] volumetric sediment inflow at source cells)
+LEM.inflow = 10;                        % [m3s-1] water inflow at source cells
+LEM.initial_sediment_stock = 0.1;       % [%] volumetric sediment inflow at source cells
 
 LEM.start = 2000;                       % start time
-LEM.stop = 200000;                       % [s] length of model run
+LEM.stop = 200000;                      % [s] length of model run
 LEM.draw = 2000;                        % output interval
 
 LEM.seedtime = 100;                     % unknown parameter
 
 % EROSION/DEPOSITION
 LEM.erosion_model = 'shear_stress';     % (stream_power, shear_stress, shear_mpm)
-LEM.deposition_model = 'constant';      % need to know whether there are other options!
+LEM.deposition_model = 'constant';      % need to know name of other options!
 
 % Alluvial
 LEM.stress_exponent = 1.5;              % exponent in sediment flux eq. (MPM): qs = E(tau-tau_c)^a
