@@ -27,14 +27,14 @@ function [B,varargout] = plotEros(variable,varargin)
 %                  'sediment'   Sediment thickness
 %                  'water'      Water depth
 %                  'discharge'  Water discharge
-%                  'qs'         Sediment flux
-%                  'downward'   Downward velocity
+%                  'qs'         Unit-sediment flux
+%                  'downward'   Average settling velocity
 %                  'stress'     Shear stress
 %                  'slope'      Stream slope
 %                  'capacity'   Stream capacity
 %                  'stock'      Sediment stock
-%                  'hum'        the water discharge on the topography
-%                  'rain'       Sources(>0) and sinks (-1)
+%                  'hum'        Water discharge on the topography
+%                  'rain'       Sources (>0) and sinks (-1) of water and sediment
 %
 % INPUT (optional)
 %
@@ -92,7 +92,7 @@ function [B,varargout] = plotEros(variable,varargin)
 %  https://doi.org/10.1002/2016JF004156
 % 
 %
-% Author: Jrgen Mey (juemey[at]uni-potsdam.de)
+% Author: Juergen Mey (juemey[at]uni-potsdam.de)
 % Date: 28. May, 2020
 
 p = inputParser;
