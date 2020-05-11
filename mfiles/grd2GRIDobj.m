@@ -31,7 +31,7 @@ function Z = grd2GRIDobj(filename,G)
 %               GRIDobj2grd(DEM1,'srtm_bigtujunga30m_utm11.alt');
 %               DEM2 = grd2GRIDobj('srtm_bigtujunga30m_utm11.alt',DEM1)
 %
-% Author: Jürgen Mey (juemey[at]uni-potsdam.de) modified after Davy (2017)
+% Author: Juergen Mey (juemey[at]uni-potsdam.de) modified after Davy (2017)
 % https://osur.univ-rennes1.fr/eros/index.php/matlab-functions/ 
 % Date: 28. May, 2020
 
