@@ -127,22 +127,22 @@ switch variable
         iylabel = 'Capacity';
     case 'discharge'
         filetype = 'discharge';
-        iylabel = 'Water discharge';
+        iylabel = 'Water discharge (m^3/s)';
     case 'downward'
         filetype = 'downward';
-        iylabel = 'unknown';
+        iylabel = 'Mean settling velocity (m/s)';
     case 'hum'
         filetype = 'hum';
-        iylabel = 'unknown';
+        iylabel = 'Water discharge on topography (m^3/s)';
     case 'qs'
         filetype = 'qs';
-        iylabel = 'Sediment flux (kg)';
+        iylabel = 'Sediment flux (m^3/s)';
     case 'slope'
         filetype = 'slope';
         iylabel = 'Slope';
     case 'stock'
         filetype = 'stock';
-        iylabel = 'Sediment stock (m^3?)';
+        iylabel = 'Sediment stock (m^3)';
     case 'stress'
         filetype = 'stress';
         iylabel = 'Shear stress (Pa)';
