@@ -178,6 +178,7 @@ switch mode
         [~,index] = sortrows({H.date}.');
         H = H(index);
         Z = Z(index);
+        w = waitbar(1/length(H),['Collecting movie frames ... ']);
         for i = 1:length(H)
             h = grd2GRIDobj(H(i).name);
             z = grd2GRIDobj(Z(i).name);
@@ -187,9 +188,12 @@ switch mode
             c.Label.String = iylabel;
             caxis([nanmin(B(:)),nanmax(B(:))])
             title(['Time = ',num2str(t(i)),' s'])
+            set(gcf,'Visible','off')
             F(i) = getframe(gcf);
             close all
+            waitbar(i/length(H))
         end
+        close(w)
         f = figure;
         movie(f,F,2,5)
         close(f)
@@ -200,6 +204,7 @@ switch mode
         [~,index] = sortrows({H.date}.');
         H = H(index);
 %         Z = Z(index);
+        w = waitbar(1/length(H),['Collecting movie frames ... ']);
         for i = 1:length(H)
             h = grd2GRIDobj(H(i).name);
 %             z = grd2GRIDobj(Z(i).name);
@@ -213,9 +218,12 @@ switch mode
             colormap(landcolor)
 %             caxis([nanmin(B(:)),nanmax(B(:))])
             title(['Time = ',num2str(t(i)),' s'])
+            set(gcf,'Visible','off')
             F(i) = getframe(gcf);
             close all
+            waitbar(i/length(H))
         end
+        close(w)
         f = figure;
         movie(f,F,2,5)
         close(f)
