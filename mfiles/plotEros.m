@@ -149,15 +149,9 @@ switch variable
 end
 
 % determine timesteps
-T = dir('*.txt');
-opts = detectImportOptions(T.name);
-A = readtable(T.name,opts);
-
-D=table2cell(A(:,end));
-idx = contains(D,'W');
-
-A = table2array(A(:,1:end-1));
-t = vertcat(0,A(idx,1));
+T = dir('*.ini');
+Z = dir(['*.',filetype]);
+[t,~] = fread_timeVec(T.name,length(Z)); 
 
 Z = dir(['*.',filetype]);
 [~,index] = sortrows({Z.date}.');
