@@ -48,10 +48,10 @@ dem=GRIDobj('./Topo/channel_dx8_S0.01.tif');
 %%                           DEFINE INPUT PARAMETERS
 %--------------------------------------------------------------------------
 
-LEM.experiment = 'Test';                % Project name
+LEM.experiment = 'singlethread';                % Project name
 
 LEM.ErosPath = 'C:\\Projects\\EROS';    % Path to .exe
-LEM.outfolder = 'test';                 % folder to store results in
+LEM.outfolder = 'ProjectFolder';                 % folder to store results in
 
 LEM.inflow = 10;                        % [m3s-1]water inflow at source cells
 LEM.initial_sediment_stock = 0.1;       % [%] volumetric sediment inflow at source cells)
