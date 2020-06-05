@@ -207,7 +207,7 @@ switch mode
         end
         close(w)
         f = figure;
-        movie(f,F,2,5)
+        movie(f,F,1,10)
         close(f)
         B = F;
     case 'movie3'
@@ -237,7 +237,7 @@ switch mode
         end
         close(w)
         f = figure;
-        movie(f,F,2,5)
+        movie(f,F,1,10)
         close(f)
         B = F;
 end
