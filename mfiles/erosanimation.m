@@ -23,7 +23,7 @@ function [B,varargout] = erosanimation(variable,varargin)
 % INPUT (required)
 %
 %   variable       variable of interest (string)
-%                  'elevation'  Topographic elevation
+%                  'topo'  Topographic elevation
 %                  'sediment'   Sediment thickness
 %                  'water'      Water depth
 %                  'discharge'  Water discharge
