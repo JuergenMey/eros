@@ -25,7 +25,6 @@ function [varargout] = erosinfo(variable)
 %                  'q'          Water discharge
 %                  'q_in'       Water discharge
 %                  'q_out'      Water discharge
-%                  'qs'         Unit-sediment flux
 %                  'qs_in'      Unit-sediment flux
 %                  'qs_out'     Unit-sediment flux
 %                  'rain'       rain
