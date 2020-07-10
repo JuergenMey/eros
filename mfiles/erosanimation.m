@@ -195,10 +195,7 @@ switch mode
             h = grd2GRIDobj(H(i+1).name);
             z = grd2GRIDobj(Z(i+1).name);
             z.Z(z.Z==0)=NaN;
-            imageschs(h,z,'colormap',colors);
-            c = colorbar;
-            c.Label.String = iylabel;
-            caxis([nanmin(B(:)),nanmax(B(:))])
+            imageschs(h,z,'colormap',colors,'caxis',[nanmin(B(:)),nanmax(B(:))],'colorbarylabel',iylabel);
             title(['Time = ',num2str(t(i)),''])
             set(gcf,'Visible','off')
             F(i) = getframe(gcf);

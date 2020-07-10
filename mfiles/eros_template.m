@@ -92,16 +92,10 @@ LEM.fluvial_basement_threshold = 4;
 %--------------------------------------------------------------------------
 % FLOW MODEL
 %--------------------------------------------------------------------------
-LEM.diffusion_coefficient = 0.5;
-LEM.poisson_coefficient = 4;
 LEM.flood_model = 1;
 LEM.flow_model = 'manning';
-LEM.minimum_flow_coefficient = 0.0;
 LEM.friction_coefficient = 0.025;       % 
-LEM.water_depth_limit = -1;
-LEM.flow_depth_constant = 1.0;
 LEM.flow_only = 0;
-LEM.fictious_area = 1;
 
 %--------------------------------------------------------------------------
 % OUTPUTS TO WRITE

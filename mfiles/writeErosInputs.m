@@ -69,26 +69,25 @@ fprintf(fileID, ['deposition_model=',LEM.deposition_model,'\n']);
 % ALLUVIAL
 fprintf(fileID, ['fluvial_stress_exponent=',num2str(LEM.fluvial_stress_exponent),'\n']);
 fprintf(fileID, ['fluvial_river-to-bed_transfert_length=',num2str(LEM.deposition_length),'\n']); % be aware of the t in transfert_length
-fprintf(fileID, ['fluvial_erodability=',num2str(LEM.fluvial_erodability),':dir\n']);
+fprintf(fileID, ['fluvial_erodability=',num2str(LEM.fluvial_erodability),'\n']);
 fprintf(fileID, ['fluvial_sediment_threshold=',num2str(LEM.fluvial_sediment_threshold),'\n']);
 % Lateral erosion/deposition
-fprintf(fileID, ['fluvial_lateral_erosion_coefficient=',num2str(LEM.fluvial_lateral_erosion_coefficient),'\n']);
+fprintf(fileID, ['fluvial_lateral_erosion_coefficient=',num2str(LEM.fluvial_lateral_erosion_coefficient),':dir\n']);
 fprintf(fileID, ['fluvial_lateral_deposition_coefficient=',num2str(LEM.fluvial_lateral_deposition_coefficient),'\n']);
+
+fprintf(fileID, ['outbend_erosion_coefficient=',num2str(LEM.outbend_erosion_coefficient),'\n']);
+fprintf(fileID, ['inbend_erosion_coefficient=',num2str(LEM.inbend_erosion_coefficient),'\n']);
+
+
 % BEDROCK
 fprintf(fileID, ['fluvial_basement_erodability=',num2str(LEM.fluvial_basement_erodability),'\n']);
 fprintf(fileID, ['fluvial_basement_threshold=',num2str(LEM.fluvial_basement_threshold),'\n']);
 
 % FLOW MODEL
-fprintf(fileID, ['diffusion_coefficient=',num2str(LEM.diffusion_coefficient),'\n']);
-fprintf(fileID, ['poisson_coefficient=',num2str(LEM.poisson_coefficient),'\n']);
 fprintf(fileID, ['flood_model=',num2str(LEM.flood_model),'\n']);
 fprintf(fileID, ['flow_model=',LEM.flow_model,'\n']);
-fprintf(fileID, ['minimum_flow_coefficient=',num2str(LEM.minimum_flow_coefficient),'\n']);
 fprintf(fileID, ['friction_coefficient=',num2str(LEM.friction_coefficient),'\n']);
-fprintf(fileID, ['water_depth_limit=',num2str(LEM.water_depth_limit),'\n']);
-fprintf(fileID, ['flow_depth_constant=',num2str(LEM.flow_depth_constant),'\n']);
 fprintf(fileID, ['flow_only=',num2str(LEM.flow_only),'\n']);
-fprintf(fileID, ['fictious_area=',num2str(LEM.fictious_area),'\n']);
 
 % Boundary conditions
 % Topo
@@ -101,7 +100,7 @@ fprintf(fileID, ['inflow=',num2str(LEM.inflow),':dir\n']);
 fprintf(fileID, ['initial_sediment_stock=',num2str(LEM.initial_sediment_stock),':dir\n']);
 
 % Time
-fprintf(fileID, ['time:begin=',num2str(LEM.start),':end=',num2str(LEM.stop),':step=',num2str(LEM.step),':volume:draw=',num2str(LEM.draw),'\n']);
+fprintf(fileID, ['time:begin=',num2str(LEM.start),':end=',num2str(LEM.stop),':step=',num2str(LEM.step),':dir:volume:draw=',num2str(LEM.draw),'\n']);
 % fprintf(fileID, ['time:begin=',num2str(LEM.start),':end=',num2str(LEM.stop),':init=',num2str(LEM.init),':draw=',num2str(LEM.draw),'\n']);
 % fprintf(fileID, ['time:step=',num2str(LEM.step),':volume:min=',num2str(LEM.stepmin),':max=',num2str(LEM.stepmax),'\n']);
 
