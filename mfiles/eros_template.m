@@ -3,7 +3,7 @@
 %--------------------------------------------------------------------------
 %
 %+++++++++++++++++ Example data (1% inclined, flat surface) +++++++++++++++
-
+addpath('C:\Projects\EROS\Hochrhein\mfiles')
 % ALT (elevation model) 
 dem=GRIDobj('./Topo/channel_dx8_S0.01.tif');
 
@@ -50,7 +50,7 @@ dem=GRIDobj('./Topo/channel_dx8_S0.01.tif');
 
 LEM.experiment = 'singlethread';                % Project name
 
-LEM.ErosPath = 'C:\\Projects\\EROS';    % Path to .exe
+LEM.ErosPath = 'C:\\Users\\mey\\SynologyDrive\\erosmatlabinterface';    % Path to .exe
 LEM.outfolder = 'Results';                 % folder to store results in
 
 LEM.inflow = 10;                        % [m3s-1]water inflow at source cells
@@ -89,6 +89,8 @@ LEM.fluvial_lateral_deposition_coefficient = 0.5;
 LEM.fluvial_basement_erodability = 0.0002;
 LEM.fluvial_basement_threshold = 4;
 
+LEM.outbend_erosion_coefficient                   = 1.000000;
+LEM.inbend_erosion_coefficient                    = 1.00000;
 %--------------------------------------------------------------------------
 % FLOW MODEL
 %--------------------------------------------------------------------------
