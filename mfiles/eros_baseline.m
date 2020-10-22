@@ -3,14 +3,12 @@
 %--------------------------------------------------------------------------
 %
 %+++++++++++++++++ Example data (1% inclined, flat surface) +++++++++++++++
-addpath('C:\Projects\EROS\Hochrhein\mfiles')
+addpath('.\mfiles')
 % ALT (elevation model) 
-dem=GRIDobj('./Topo/channel_dx8_S0.01.tif');
+dem=GRIDobj('./Topo/dem.tif');
 
 % RAIN (sources (>0) and sinks (-1))
- rain = dem*0;
- rain.Z(:,1)=-1;
- rain.Z(10:16,end)=1;
+ rain = GRIDobj('.\Topo\map_wc2_norm.tif');
 
 %SED (sediment thickness in meters)
  sed = dem*0;
@@ -48,20 +46,20 @@ dem=GRIDobj('./Topo/channel_dx8_S0.01.tif');
 %%                           DEFINE INPUT PARAMETERS
 %--------------------------------------------------------------------------
 
-LEM.experiment = 'singlethread';                % Project name
+LEM.experiment = 'baseline_test';                % Project name
 
 LEM.ErosPath = 'C:\\Users\\mey\\SynologyDrive\\erosmatlabinterface';    % Path to .exe
 LEM.outfolder = 'Results';                 % folder to store results in
 
 LEM.inflow = 10;                        % [m3s-1]water inflow at source cells
-LEM.initial_sediment_stock = 0.1;       % [%] volumetric sediment inflow at source cells)
+LEM.initial_sediment_stock = 0;       % [%] volumetric sediment inflow at source cells)
 LEM.inertia = 0;                        % refers to inertia term in shallow water equation
 
 LEM.start = 0;                          % start time
-LEM.stop = 200000;                      % length of model run
-LEM.draw = 2000;                        % output interval
+LEM.stop = 2000;                      % length of model run
+LEM.draw = 10;                        % output interval
 LEM.init = 2000;                        % initialization time (-)
-LEM.step = 0.3;
+LEM.step = 5;
 LEM.stepmin = 0.3;
 LEM.stepmax = 0.3;
 % LEM.i = 1.5e-3;
@@ -77,7 +75,7 @@ LEM.deposition_model = 'constant';      % need to know whether there are other o
 
 % ALLUVIAL
 LEM.fluvial_stress_exponent = 1.5;      % exponent in sediment flux eq. (MPM): qs = E(tau-tau_c)^a
-LEM.fluvial_erodability = 0.0002;       % [kg-1.5 m-3.5 s-2] E in MPM equation
+LEM.fluvial_erodability = 0.4;       % [kg-1.5 m-3.5 s-2] E in MPM equation
 LEM.fluvial_sediment_threshold = 4.0;   % [Pa] critical shear stress (tau_c) in MPM equation
 LEM.deposition_length = 2;              % [m] xi in vertical erosion term: edot = qs/xi
 
@@ -86,7 +84,7 @@ LEM.fluvial_lateral_erosion_coefficient = 0.05;             % dimensionless coef
 LEM.fluvial_lateral_deposition_coefficient = 0.5;
 
 % BEDROCK
-LEM.fluvial_basement_erodability = 0.0002;
+LEM.fluvial_basement_erodability = 0.2;
 LEM.fluvial_basement_threshold = 4;
 
 LEM.outbend_erosion_coefficient                   = 1.000000;
