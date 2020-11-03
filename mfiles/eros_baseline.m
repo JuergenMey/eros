@@ -3,17 +3,19 @@
 %--------------------------------------------------------------------------
 %
 %+++++++++++++++++ Example data (1% inclined, flat surface) +++++++++++++++
-addpath('.\mfiles')
+% addpath('.\mfiles')
 % ALT (elevation model) 
-dem=GRIDobj('./Topo/dem.tif');
-
+dem=GRIDobj('./Topo/dem_1000m.tif');
 % RAIN (sources (>0) and sinks (-1))
- rain = GRIDobj('.\Topo\map_wc2_norm.tif');
+ rain = GRIDobj('.\Topo\map_wc2_norm_1000m.tif');
 
 %SED (sediment thickness in meters)
  sed = dem*0;
- sed = sed+10;
- 
+ sed.Z(~isnan(sed.Z))=10;
+%  rain.Z(isnan(dem.Z))=-9999.0;
+%  sed.Z(isnan(dem.Z))=-9999.0;
+%  dem.Z(isnan(dem.Z))= -9999.0;
+
  LEM.dem = dem;
  LEM.rain = rain;
  LEM.sed = sed;
@@ -56,9 +58,9 @@ LEM.initial_sediment_stock = 0;       % [%] volumetric sediment inflow at source
 LEM.inertia = 0;                        % refers to inertia term in shallow water equation
 
 LEM.start = 0;                          % start time
-LEM.stop = 2000;                      % length of model run
+LEM.stop = 200;                      % length of model run
 LEM.draw = 10;                        % output interval
-LEM.init = 2000;                        % initialization time (-)
+LEM.init = 200;                        % initialization time (-)
 LEM.step = 5;
 LEM.stepmin = 0.3;
 LEM.stepmax = 0.3;
