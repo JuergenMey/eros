@@ -3,7 +3,7 @@
 %--------------------------------------------------------------------------
 %
 %+++++++++++++++++ Example data (1% inclined, flat surface) +++++++++++++++
-addpath('C:\Projects\EROS\Hochrhein\mfiles');
+addpath('.\mfiles');
 % ALT (elevation model) 
 dem=GRIDobj('./Topo/channel_dx8_S0.01.tif');
 
@@ -50,8 +50,8 @@ dem=GRIDobj('./Topo/channel_dx8_S0.01.tif');
 
 LEM.experiment = 'singlethread';                % Project name
 
-LEM.ErosPath = 'C:\\Projects\\EROS';    % Path to .exe
-LEM.outfolder = 'Results';                 % folder to store results in
+LEM.ErosPath = 'C:\\Projects\\EROS\\Hochrhein';     % Path to bin-folder, where .exe resides
+LEM.outfolder = 'Results';                          % folder to store results in
 
 LEM.inflow = 10;                        % [m3s-1]water inflow at source cells
 LEM.initial_sediment_stock = 0.1;       % [%] volumetric sediment inflow at source cells)
@@ -85,8 +85,8 @@ LEM.deposition_length = 2;              % [m] xi in vertical erosion term: edot 
 LEM.fluvial_lateral_erosion_coefficient = 0.05;             % dimensionless coefficient (Eq. 17 in Davy, Croissant, Lague (2017))
 LEM.fluvial_lateral_deposition_coefficient = 0.5;
 
-LEM.outbend_erosion_coefficient                   = 1.000000;
-LEM.inbend_erosion_coefficient                    = 1.00000;
+LEM.outbend_erosion_coefficient                   = 1.0;
+LEM.inbend_erosion_coefficient                    = 1.0;
 
 % BEDROCK
 LEM.fluvial_basement_erodability = 0.0002;
