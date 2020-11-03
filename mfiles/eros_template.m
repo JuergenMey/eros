@@ -3,7 +3,7 @@
 %--------------------------------------------------------------------------
 %
 %+++++++++++++++++ Example data (1% inclined, flat surface) +++++++++++++++
-
+addpath('C:\Projects\EROS\Hochrhein\mfiles');
 % ALT (elevation model) 
 dem=GRIDobj('./Topo/channel_dx8_S0.01.tif');
 
@@ -84,6 +84,9 @@ LEM.deposition_length = 2;              % [m] xi in vertical erosion term: edot 
 % Lateral erosion/deposition
 LEM.fluvial_lateral_erosion_coefficient = 0.05;             % dimensionless coefficient (Eq. 17 in Davy, Croissant, Lague (2017))
 LEM.fluvial_lateral_deposition_coefficient = 0.5;
+
+LEM.outbend_erosion_coefficient                   = 1.000000;
+LEM.inbend_erosion_coefficient                    = 1.00000;
 
 % BEDROCK
 LEM.fluvial_basement_erodability = 0.0002;
