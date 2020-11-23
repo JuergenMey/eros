@@ -13,4 +13,4 @@ goto:todo
 :todo
 
 
-start /LOW %COMMAND% -dir=Results\ baseline_test.arg
+start /LOW %COMMAND% -dir=baseline\ baseline_test.arg
