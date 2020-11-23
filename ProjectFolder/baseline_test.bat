@@ -1,7 +1,7 @@
 @rem  Run Eros program with following arguments
 @rem
 @echo off
-@set EROS_PROG=C:\Users\mey\SynologyDrive\erosmatlabinterface\bin\eros7.exe
+@set EROS_PROG=C:\Projects\EROS\Hochrhein\bin\eros7.exe
 @set COMMAND=%EROS_PROG% %*
 @echo on
 @rem
