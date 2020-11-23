@@ -51,17 +51,17 @@ dem=GRIDobj('./Topo/dem_1000m.tif');
 LEM.experiment = 'baseline_test';                % Project name
 
 LEM.ErosPath = 'C:\\Users\\mey\\SynologyDrive\\erosmatlabinterface';    % Path to .exe
-LEM.outfolder = 'Results';                 % folder to store results in
+LEM.outfolder = 'baseline';                 % folder to store results in
 
-LEM.inflow = 10;                        % [m3s-1]water inflow at source cells
+LEM.inflow = 1060;                        % [m3s-1]water inflow at source cells
 LEM.initial_sediment_stock = 0;       % [%] volumetric sediment inflow at source cells)
 LEM.inertia = 0;                        % refers to inertia term in shallow water equation
 
 LEM.start = 0;                          % start time
-LEM.stop = 200;                      % length of model run
+LEM.stop = 1091;                      % length of model run
 LEM.draw = 10;                        % output interval
-LEM.init = 200;                        % initialization time (-)
-LEM.step = 5;
+LEM.init = 10;                        % initialization time (-)
+LEM.step = 0.3;
 LEM.stepmin = 0.3;
 LEM.stepmax = 0.3;
 % LEM.i = 1.5e-3;
@@ -78,16 +78,16 @@ LEM.deposition_model = 'constant';      % need to know whether there are other o
 % ALLUVIAL
 LEM.fluvial_stress_exponent = 1.5;      % exponent in sediment flux eq. (MPM): qs = E(tau-tau_c)^a
 LEM.fluvial_erodability = 0.4;       % [kg-1.5 m-3.5 s-2] E in MPM equation
-LEM.fluvial_sediment_threshold = 4.0;   % [Pa] critical shear stress (tau_c) in MPM equation
+LEM.fluvial_sediment_threshold = 17.48;   % [Pa] critical shear stress (tau_c) in MPM equation
 LEM.deposition_length = 2;              % [m] xi in vertical erosion term: edot = qs/xi
 
 % Lateral erosion/deposition
 LEM.fluvial_lateral_erosion_coefficient = 0.05;             % dimensionless coefficient (Eq. 17 in Davy, Croissant, Lague (2017))
-LEM.fluvial_lateral_deposition_coefficient = 0.5;
+LEM.fluvial_lateral_deposition_coefficient = 0.05;
 
 % BEDROCK
-LEM.fluvial_basement_erodability = 0.2;
-LEM.fluvial_basement_threshold = 4;
+LEM.fluvial_basement_erodability = 0.02;
+LEM.fluvial_basement_threshold = 24;
 
 LEM.outbend_erosion_coefficient                   = 1.000000;
 LEM.inbend_erosion_coefficient                    = 1.00000;
