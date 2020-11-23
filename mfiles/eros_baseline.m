@@ -50,7 +50,7 @@ dem=GRIDobj('./Topo/dem_1000m.tif');
 
 LEM.experiment = 'baseline_test';                % Project name
 
-LEM.ErosPath = 'C:\\Users\\mey\\SynologyDrive\\erosmatlabinterface';    % Path to .exe
+LEM.ErosPath = 'C:\\Projects\\EROS\\Hochrhein';    % Path to .exe
 LEM.outfolder = 'baseline';                 % folder to store results in
 
 LEM.inflow = 1060;                        % [m3s-1]water inflow at source cells
@@ -59,11 +59,11 @@ LEM.inertia = 0;                        % refers to inertia term in shallow wate
 
 LEM.start = 0;                          % start time
 LEM.stop = 1091;                      % length of model run
-LEM.draw = 10;                        % output interval
-LEM.init = 10;                        % initialization time (-)
-LEM.step = 0.3;
-LEM.stepmin = 0.3;
-LEM.stepmax = 0.3;
+LEM.draw = 2;                        % output interval
+LEM.init = 1;                        % initialization time (-)
+LEM.step = 0.0003;
+LEM.stepmin = 0.0003;
+LEM.stepmax = 0.0003;
 % LEM.i = 1.5e-3;
 
 LEM.TU = 100;                           % unknown parameter
