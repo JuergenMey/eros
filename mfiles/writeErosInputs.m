@@ -94,6 +94,7 @@ fprintf(fileID, ['flow_only=',num2str(LEM.flow_only),'\n']);
 fprintf(fileID, ['topo=Topo\\',LEM.dem.name,'.alt:dir:short\n']);
 fprintf(fileID, ['rain=Topo\\',LEM.dem.name,'.rain\n']);
 fprintf(fileID, ['sed=Topo\\',LEM.dem.name,'.sed\n']);
+fprintf(fileID, ['uplift=Topo\\',LEM.dem.name,'.uplift\n']);
 
 % inflow conditions
 fprintf(fileID, ['inflow=',num2str(LEM.inflow),':dir\n']);

@@ -5,10 +5,12 @@
 %+++++++++++++++++ Example data (1% inclined, flat surface) +++++++++++++++
 % addpath('.\mfiles')
 % ALT (elevation model) 
-dem=GRIDobj('./Topo/dem_1000m.tif');
+dem=GRIDobj('./Topo/HochRhein_1000m.tif');
 % RAIN (sources (>0) and sinks (-1))
  rain = GRIDobj('.\Topo\map_wc2_norm_1000m.tif');
-
+uplift =  GRIDobj('.\Topo\uplift.tif');
+uplift = resample(uplift,dem);
+ 
 %SED (sediment thickness in meters)
  sed = dem*0;
  sed.Z(~isnan(sed.Z))=10;
@@ -19,10 +21,12 @@ dem=GRIDobj('./Topo/dem_1000m.tif');
  LEM.dem = dem;
  LEM.rain = rain;
  LEM.sed = sed;
+ LEM.uplift = uplift;
 
  GRIDobj2grd(dem,['./Topo/',dem.name,'.alt']);
  GRIDobj2grd(rain,['./Topo/',dem.name,'.rain']);
  GRIDobj2grd(sed,['./Topo/',dem.name,'.sed']);
+ GRIDobj2grd(uplift,['./Topo/',dem.name,'.uplift']);
 
 %+++++++++++++++++++++++++++ Real topography ++++++++++++++++++++++++++++++
 % % ALT (elevation model)
@@ -66,7 +70,7 @@ LEM.stepmin = 0.0003;
 LEM.stepmax = 0.0003;
 % LEM.i = 1.5e-3;
 
-LEM.TU = 100;                           % unknown parameter
+LEM.TU = 0.01;                           % unknown parameter
 LEM.floodos = 'stationary:pow';
 
 %--------------------------------------------------------------------------
@@ -97,7 +101,7 @@ LEM.inbend_erosion_coefficient                    = 1.00000;
 LEM.flood_model = 1;
 LEM.flow_model = 'manning';
 LEM.friction_coefficient = 0.025;       % 
-LEM.flow_only = 0;
+LEM.flow_only = 1;
 
 %--------------------------------------------------------------------------
 % OUTPUTS TO WRITE
