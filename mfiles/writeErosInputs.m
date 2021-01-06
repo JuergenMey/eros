@@ -67,21 +67,21 @@ fileID = fopen('./dat/inputs.dat','w');
 fprintf(fileID, ['erosion_model=',LEM.erosion_model,'\n']); 
 fprintf(fileID, ['deposition_model=',LEM.deposition_model,'\n']);
 % ALLUVIAL
-fprintf(fileID, ['fluvial_stress_exponent=',num2str(LEM.fluvial_stress_exponent),'\n']);
-fprintf(fileID, ['fluvial_river-to-bed_transfert_length=',num2str(LEM.deposition_length),'\n']); % be aware of the t in transfert_length
-fprintf(fileID, ['fluvial_erodability=',num2str(LEM.fluvial_erodability),'\n']);
-fprintf(fileID, ['fluvial_sediment_threshold=',num2str(LEM.fluvial_sediment_threshold),'\n']);
+fprintf(fileID, ['sediment_stress_exponent_fluvial=',num2str(LEM.fluvial_stress_exponent),'\n']);
+fprintf(fileID, ['deposition_length_fluvial=',num2str(LEM.deposition_length),'\n']); % be aware of the t in transfert_length
+fprintf(fileID, ['sediment_erodability_fluvial=',num2str(LEM.fluvial_erodability),'\n']);
+fprintf(fileID, ['sediment_threshold_fluvial=',num2str(LEM.fluvial_sediment_threshold),'\n']);
 % Lateral erosion/deposition
-fprintf(fileID, ['fluvial_lateral_erosion_coefficient=',num2str(LEM.fluvial_lateral_erosion_coefficient),':dir\n']);
-fprintf(fileID, ['fluvial_lateral_deposition_coefficient=',num2str(LEM.fluvial_lateral_deposition_coefficient),'\n']);
+fprintf(fileID, ['lateral_erosion_coefficient_fluvial=',num2str(LEM.fluvial_lateral_erosion_coefficient),':dir\n']);
+fprintf(fileID, ['lateral_deposition_coefficient_fluvial=',num2str(LEM.fluvial_lateral_deposition_coefficient),'\n']);
 
-fprintf(fileID, ['outbend_erosion_coefficient=',num2str(LEM.outbend_erosion_coefficient),'\n']);
-fprintf(fileID, ['inbend_erosion_coefficient=',num2str(LEM.inbend_erosion_coefficient),'\n']);
+fprintf(fileID, ['lateral_erosion_outbend=',num2str(LEM.outbend_erosion_coefficient),'\n']);
+fprintf(fileID, ['lateral_erosion_inbend=',num2str(LEM.inbend_erosion_coefficient),'\n']);
 
 
 % BEDROCK
-fprintf(fileID, ['fluvial_basement_erodability=',num2str(LEM.fluvial_basement_erodability),'\n']);
-fprintf(fileID, ['fluvial_basement_threshold=',num2str(LEM.fluvial_basement_threshold),'\n']);
+fprintf(fileID, ['basement_erodability_fluvial=',num2str(LEM.fluvial_basement_erodability),'\n']);
+fprintf(fileID, ['basement_threshold_fluvial=',num2str(LEM.fluvial_basement_threshold),'\n']);
 
 % FLOW MODEL
 fprintf(fileID, ['flood_model=',num2str(LEM.flood_model),'\n']);
