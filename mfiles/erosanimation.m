@@ -163,7 +163,7 @@ end
 
 % determine timesteps
 
-T = dir('*.ini');
+T = dir('*.ini');T = T(end);
 Z = dir(['*.',filetype]);
 [t,~] = fread_timeVec(T.name,length(Z));
 if isempty(t)
