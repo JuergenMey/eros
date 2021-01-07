@@ -7,7 +7,7 @@
 % ALT (elevation model) 
 dem=GRIDobj('./Topo/HochRhein_1000m.tif');
 % RAIN (sources (>0) and sinks (-1))
- rain = GRIDobj('.\Topo\map_wc2_norm_1000m.tif');
+rain = GRIDobj('.\Topo\HochRhein_MAP_1000m.tif');
 uplift =  GRIDobj('.\Topo\uplift.tif');
 uplift = resample(uplift,dem);
  
@@ -62,17 +62,20 @@ LEM.rainfall = 3e-8;
 LEM.initial_sediment_stock = 0;             % [%] volumetric sediment inflow at source cells)
 LEM.inertia = 0;                            % refers to inertia term in shallow water equation
 
-LEM.start = 0;                              % start time
-LEM.stop = 10;                              % length of model run
-LEM.draw = 1;                               % output interval
-LEM.init = 1;                               % initialization time (-)
-LEM.step = 1e3;
-LEM.stepmin = 1e2;
-LEM.stepmax = 1e4;
+LEM.begin = 0;     LEM.begin_option = 'time';                        % start time
+LEM.end = 100e7;   LEM.end_option = 'time';                           % length of model run
+LEM.draw = 1e6;    LEM.draw_option = 'time';                           % output interval
+LEM.step = 1e3;    LEM.step_option = 'volume'; 
+LEM.stepmin = 1e3;
+LEM.stepmax = 1e3;
+LEM.initbegin = 1e+3;                                   % initialization time (-)
+LEM.initend = 1e+3;
+LEM.initstep = 2;
 
 LEM.TU = 0.01;                              % unknown parameter
 LEM.TU_coefficient = 1;
-LEM.floodos = 'stationary:pow';
+LEM.flow_model = 'stationary:pow';
+LEM.erosion_multiply = 1;
 
 LEM.limiter = 1e-1;
 %--------------------------------------------------------------------------
@@ -85,7 +88,7 @@ LEM.deposition_model = 'constant';          % need to know whether there are oth
 LEM.fluvial_stress_exponent = 1.5;          % exponent in sediment flux eq. (MPM): qs = E(tau-tau_c)^a
 LEM.fluvial_erodability = 2.6e-8;              % [kg-1.5 m-3.5 s-2] E in MPM equation
 LEM.fluvial_sediment_threshold = 0.05;     % [Pa] critical shear stress (tau_c) in MPM equation
-LEM.deposition_length = 2;                  % [m] xi in vertical erosion term: edot = qs/xi
+LEM.deposition_length = 1000;                  % [m] xi in vertical erosion term: edot = qs/xi
 
 % Lateral erosion/deposition
 LEM.fluvial_lateral_erosion_coefficient = 1e-4;             % dimensionless coefficient (Eq. 17 in Davy, Croissant, Lague (2017))
@@ -108,9 +111,10 @@ LEM.basement_grain = 0.001;
 % FLOW MODEL
 %--------------------------------------------------------------------------
 LEM.flood_model = 1;
-LEM.flow_model = 'manning';
+LEM.friction_model = 'manning';
 LEM.friction_coefficient = 0.025;       % 
-LEM.flow_only = 1;
+LEM.flow_only = 0;
+LEM.flow_boundary = 'free';
 
 %--------------------------------------------------------------------------
 % OUTPUTS TO WRITE
@@ -123,7 +127,6 @@ LEM.slope = 1;
 LEM.qs = 1;
 LEM.capacity = 1;
 LEM.sediment = 1;
-LEM.rainfall = 0;
 
 LEM.str_write = '';
 LEM.str_nowrite = '';
