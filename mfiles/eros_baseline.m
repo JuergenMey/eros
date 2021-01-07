@@ -57,44 +57,53 @@ LEM.experiment = 'baseline_test';                % Project name
 LEM.ErosPath = 'C:\\Projects\\EROS\\Hochrhein';    % Path to .exe
 LEM.outfolder = 'baseline';                 % folder to store results in
 
-LEM.inflow = 1060;                        % [m3s-1]water inflow at source cells
-LEM.initial_sediment_stock = 0;       % [%] volumetric sediment inflow at source cells)
-LEM.inertia = 0;                        % refers to inertia term in shallow water equation
+LEM.inflow = 1060;                          % [m3s-1]water inflow at source cells
+LEM.rainfall = 3e-8;
+LEM.initial_sediment_stock = 0;             % [%] volumetric sediment inflow at source cells)
+LEM.inertia = 0;                            % refers to inertia term in shallow water equation
 
-LEM.start = 0;                          % start time
-LEM.stop = 1091;                      % length of model run
-LEM.draw = 2;                        % output interval
-LEM.init = 1;                        % initialization time (-)
-LEM.step = 0.0003;
-LEM.stepmin = 0.0003;
-LEM.stepmax = 0.0003;
-% LEM.i = 1.5e-3;
+LEM.start = 0;                              % start time
+LEM.stop = 10;                              % length of model run
+LEM.draw = 1;                               % output interval
+LEM.init = 1;                               % initialization time (-)
+LEM.step = 1e3;
+LEM.stepmin = 1e2;
+LEM.stepmax = 1e4;
 
-LEM.TU = 0.01;                           % unknown parameter
+LEM.TU = 0.01;                              % unknown parameter
+LEM.TU_coefficient = 1;
 LEM.floodos = 'stationary:pow';
 
+LEM.limiter = 1e-1;
 %--------------------------------------------------------------------------
 % EROSION/DEPOSITION
 %--------------------------------------------------------------------------
-LEM.erosion_model = 'shear_stress';     % (stream_power, shear_stress, shear_mpm)
-LEM.deposition_model = 'constant';      % need to know whether there are other options!
+LEM.erosion_model = 'MPM';                  % (stream_power, shear_stress, shear_mpm)
+LEM.deposition_model = 'constant';          % need to know whether there are other options!
 
 % ALLUVIAL
-LEM.fluvial_stress_exponent = 1.5;      % exponent in sediment flux eq. (MPM): qs = E(tau-tau_c)^a
-LEM.fluvial_erodability = 0.4;       % [kg-1.5 m-3.5 s-2] E in MPM equation
-LEM.fluvial_sediment_threshold = 17.48;   % [Pa] critical shear stress (tau_c) in MPM equation
-LEM.deposition_length = 2;              % [m] xi in vertical erosion term: edot = qs/xi
+LEM.fluvial_stress_exponent = 1.5;          % exponent in sediment flux eq. (MPM): qs = E(tau-tau_c)^a
+LEM.fluvial_erodability = 2.6e-8;              % [kg-1.5 m-3.5 s-2] E in MPM equation
+LEM.fluvial_sediment_threshold = 0.05;     % [Pa] critical shear stress (tau_c) in MPM equation
+LEM.deposition_length = 2;                  % [m] xi in vertical erosion term: edot = qs/xi
 
 % Lateral erosion/deposition
-LEM.fluvial_lateral_erosion_coefficient = 0.05;             % dimensionless coefficient (Eq. 17 in Davy, Croissant, Lague (2017))
-LEM.fluvial_lateral_deposition_coefficient = 0.05;
+LEM.fluvial_lateral_erosion_coefficient = 1e-4;             % dimensionless coefficient (Eq. 17 in Davy, Croissant, Lague (2017))
+LEM.fluvial_lateral_deposition_coefficient = 0.5;
+LEM.lateral_erosion_model = 1;
+LEM.lateral_deposition_model = 'constant';
 
 % BEDROCK
-LEM.fluvial_basement_erodability = 0.02;
-LEM.fluvial_basement_threshold = 24;
+LEM.fluvial_basement_erodability = 2.6e-8;
+LEM.fluvial_basement_threshold = 0.5;
 
-LEM.outbend_erosion_coefficient                   = 1.000000;
-LEM.inbend_erosion_coefficient                    = 1.00000;
+LEM.outbend_erosion_coefficient = 1.000000;
+LEM.inbend_erosion_coefficient = 1.00000;
+
+LEM.poisson_coefficient = 5;
+LEM.diffusion_coefficient = 4;
+LEM.sediment_grain = 0.0001;
+LEM.basement_grain = 0.001;
 %--------------------------------------------------------------------------
 % FLOW MODEL
 %--------------------------------------------------------------------------

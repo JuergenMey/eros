@@ -97,24 +97,27 @@ fprintf(fileID, ['sed=Topo\\',LEM.dem.name,'.sed\n']);
 fprintf(fileID, ['uplift=Topo\\',LEM.dem.name,'.uplift\n']);
 
 % inflow conditions
-fprintf(fileID, ['inflow=',num2str(LEM.inflow),':dir\n']);
+% fprintf(fileID, ['inflow=',num2str(LEM.inflow),':dir\n']);
+fprintf(fileID, ['rainfall=',num2str(LEM.rainfall),':dir\n']);
 fprintf(fileID, ['initial_sediment_stock=',num2str(LEM.initial_sediment_stock),':dir\n']);
 
 % Time
-fprintf(fileID, ['time:begin=',num2str(LEM.start),':end=',num2str(LEM.stop),':step=',num2str(LEM.step),':dir:volume:draw=',num2str(LEM.draw),'\n']);
+% fprintf(fileID, ['time:begin=',num2str(LEM.start),':end=',num2str(LEM.stop),':step:min=',num2str(LEM.stepmin),':max=',num2str(LEM.stepmax),':tu:draw=',num2str(LEM.draw),'\n']);
+fprintf(fileID, ['time:begin=',num2str(LEM.start),':tu:end=',num2str(LEM.stop),':tu:step=',num2str(LEM.step),':dir:volume:draw=',num2str(LEM.draw),'\n']);
 % fprintf(fileID, ['time:begin=',num2str(LEM.start),':end=',num2str(LEM.stop),':init=',num2str(LEM.init),':draw=',num2str(LEM.draw),'\n']);
 % fprintf(fileID, ['time:step=',num2str(LEM.step),':volume:min=',num2str(LEM.stepmin),':max=',num2str(LEM.stepmax),'\n']);
 
+
 % Default management
-fprintf(fileID, 'limiter=1e-3\n');
-% fprintf(fileID, 'adapt:all:log10:20:4000:2000\n\n');
+fprintf(fileID, ['limiter=',num2str(LEM.limiter),'\n']);
+fprintf(fileID, 'default:model=all:min=20:max=10000:step=4:op=*:log10\n');
 
 % Save parameters
 fprintf(fileID, ['write=',LEM.str_write,'\n']);
 % fprintf(fileID, ['-nowrite',LEM.str_nowrite,'\n\n']);
 % % fprintf(fileID, '# seed_and_time\n');
 fprintf(fileID, ['TU=',num2str(LEM.TU),':dir\n']);   % unknown parameter 
-fprintf(fileID, ['inertia=',num2str(LEM.inertia),':dir\n']);   % inertia in shallow water equation 
+fprintf(fileID, ['flow_inertia_coefficient=',num2str(LEM.inertia),':dir\n']);   % inertia in shallow water equation 
 fprintf(fileID, ['floodos=',LEM.floodos,':dir\n']);   % floodos mode 
 % fprintf(fileID, ['i=',num2str(LEM.i),':dir\n']);   % unknown parameter
 fclose(fileID);
