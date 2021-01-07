@@ -169,6 +169,9 @@ Z = dir(['*.',filetype]);
 if isempty(t)
     t=1:length(Z);
 end
+if isnan(t)
+    t=1:length(Z);
+end
 
 [~,index] = sortrows({Z.date}.');
 Z = Z(index);
@@ -195,8 +198,13 @@ switch mode
             h = grd2GRIDobj(H(i+1).name);
             z = grd2GRIDobj(Z(i+1).name);
             z.Z(z.Z==0)=NaN;
-            imageschs(h,z,'colormap',colors,'caxis',[nanmin(B(:)),nanmax(B(:))],'colorbarylabel',iylabel);
+            imageschs(h,z,'colormap',colors,'caxis',[0,0.1],'colorbarylabel',iylabel);
             title(['Time = ',num2str(t(i)),''])
+            x0=10;
+            y0=10;
+            width=2200;
+            height=1900;
+            set(gcf,'position',[x0,y0,width,height])
             set(gcf,'Visible','off')
             F(i) = getframe(gcf);
             close all
