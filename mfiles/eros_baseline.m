@@ -2,52 +2,36 @@
 %                               PREPARE GRIDS
 %--------------------------------------------------------------------------
 %
-%+++++++++++++++++ Example data (1% inclined, flat surface) +++++++++++++++
 % addpath('.\mfiles')
-% ALT (elevation model) 
+% ALT (elevation model)
 dem=GRIDobj('./Topo/HochRhein_1000m.tif');
+
+
 % RAIN (sources (>0) and sinks (-1))
 rain = GRIDobj('.\Topo\HochRhein_MAP_1000m.tif');
+
+% WATER
+water = GRIDobj('.\Topo\HochRhein_WATER_1000m.tif');
+
+% UPLIFT
 uplift =  GRIDobj('.\Topo\uplift.tif');
 uplift = resample(uplift,dem);
- 
-%SED (sediment thickness in meters)
- sed = dem*0;
- sed.Z(~isnan(sed.Z))=10;
-%  rain.Z(isnan(dem.Z))=-9999.0;
-%  sed.Z(isnan(dem.Z))=-9999.0;
-%  dem.Z(isnan(dem.Z))= -9999.0;
 
- LEM.dem = dem;
- LEM.rain = rain;
- LEM.sed = sed;
- LEM.uplift = uplift;
+% SED (sediment thickness in meters)
+sed = dem*0;
+sed.Z(~isnan(sed.Z))=10;
 
- GRIDobj2grd(dem,['./Topo/',dem.name,'.alt']);
- GRIDobj2grd(rain,['./Topo/',dem.name,'.rain']);
- GRIDobj2grd(sed,['./Topo/',dem.name,'.sed']);
- GRIDobj2grd(uplift,['./Topo/',dem.name,'.uplift']);
+LEM.dem = dem;
+LEM.rain = rain;
+LEM.sed = sed;
+LEM.uplift = uplift;
+LEM.water = water;
 
-%+++++++++++++++++++++++++++ Real topography ++++++++++++++++++++++++++++++
-% % ALT (elevation model)
-% dem = GRIDobj(['./Topo/','hochrhein_crop.tif']);
-% 
-% % RAIN (sources and sinks)
-% rain = dem*0;
-% rain.Z(104:114)=-1;
-% rain.Z([16638 35718 35719 35720 35721])=1;
-% 
-% % SED (sediment thickness)
-% sed = dem*0;
-% sed = sed+10;
-
-% LEM.dem = dem;
-% LEM.rain = rain;
-% LEM.sed = sed;
-
-% GRIDobj2grd(dem,['./Topo/',dem.name,'.alt']);
-% GRIDobj2grd(rain,['./Topo/',dem.name,'.rain']);
-% GRIDobj2grd(sed,['./Topo/',dem.name,'.sed']);
+GRIDobj2grd(dem,['./Topo/',dem.name,'.alt']);
+GRIDobj2grd(rain,['./Topo/',dem.name,'.rain']);
+GRIDobj2grd(sed,['./Topo/',dem.name,'.sed']);
+GRIDobj2grd(uplift,['./Topo/',dem.name,'.uplift']);
+GRIDobj2grd(water,['./Topo/',dem.name,'.water']);
 %--------------------------------------------------------------------------
 %%                           DEFINE INPUT PARAMETERS
 %--------------------------------------------------------------------------
@@ -55,7 +39,7 @@ uplift = resample(uplift,dem);
 LEM.experiment = 'baseline_test';                % Project name
 
 LEM.ErosPath = 'C:\\Projects\\EROS\\Hochrhein';    % Path to .exe
-LEM.outfolder = 'baseline';                 % folder to store results in
+LEM.outfolder = 'baseline_test';                 % folder to store results in
 
 LEM.inflow = 1060;                          % [m3s-1]water inflow at source cells
 LEM.rainfall = 3e-8;
@@ -65,7 +49,7 @@ LEM.inertia = 0;                            % refers to inertia term in shallow 
 LEM.begin = 0;     LEM.begin_option = 'time';                        % start time
 LEM.end = 100e7;   LEM.end_option = 'time';                           % length of model run
 LEM.draw = 1e6;    LEM.draw_option = 'time';                           % output interval
-LEM.step = 1e3;    LEM.step_option = 'volume'; 
+LEM.step = 1e3;    LEM.step_option = 'volume';
 LEM.stepmin = 1e3;
 LEM.stepmax = 1e3;
 LEM.initbegin = 1e+3;                                   % initialization time (-)
@@ -112,7 +96,7 @@ LEM.basement_grain = 0.001;
 %--------------------------------------------------------------------------
 LEM.flood_model = 1;
 LEM.friction_model = 'manning';
-LEM.friction_coefficient = 0.025;       % 
+LEM.friction_coefficient = 0.025;       %
 LEM.flow_only = 0;
 LEM.flow_boundary = 'free';
 
