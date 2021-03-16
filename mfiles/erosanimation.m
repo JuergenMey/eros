@@ -216,9 +216,6 @@ switch mode
             waitbar(i/length(H))
         end
         close(w)
-        f = figure;
-        movie(f,F,1,10)
-        close(f)
         B = F;
     case 'movie3'
         H = dir('*.alt');
