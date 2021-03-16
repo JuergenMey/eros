@@ -114,7 +114,7 @@ fprintf(fileID, ['water=Topo\\',LEM.dem.name,'.water\n']);
 
 % inflow conditions
 % fprintf(fileID, ['inflow=',num2str(LEM.inflow),':dir\n']);
-fprintf(fileID, ['rainfall=',num2str(LEM.rainfall),'\n']);
+fprintf(fileID, ['rainfall=',num2str(LEM.rainfall),':dir\n']);
 fprintf(fileID, ['initial_sediment_stock=',num2str(LEM.initial_sediment_stock),'\n']);
 
 % Time

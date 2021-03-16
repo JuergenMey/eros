@@ -98,7 +98,7 @@ function [B,varargout] = erosanimation(variable,varargin)
 % Date: 28. May, 2020
 
 p = inputParser;
-expectedInput_variable = {'topo','water','sediment','qs',...
+expectedInput_variable = {'topo','water','sediment','qs','flux',...
     'discharge','downward','stress','hum','slope','capacity','stock'};
 addRequired(p,'variable',@(x) any(validatestring(x,expectedInput_variable)));
 
@@ -133,6 +133,10 @@ switch variable
         colors = 'jet';
     case 'discharge'
         filetype = 'discharge';
+        iylabel = 'Water discharge (m^3/s)';
+        colors = 'flowcolor';
+    case 'flux'
+        filetype = 'flux';
         iylabel = 'Water discharge (m^3/s)';
         colors = 'flowcolor';
     case 'downward'
@@ -198,7 +202,8 @@ switch mode
             h = grd2GRIDobj(H(i+1).name);
             z = grd2GRIDobj(Z(i+1).name);
             z.Z(z.Z==0)=NaN;
-            imageschs(h,z,'colormap',colors,'caxis',[0,0.1],'colorbarylabel',iylabel);
+%             imageschs(h,z,'colormap',colors,'caxis',[min(B(:)),200],'colorbarylabel',iylabel);
+            imageschs(h,z,'colormap',colors,'caxis',[min(B(:)),max(B(:))],'colorbarylabel',iylabel);
             title(['Time = ',num2str(t(i)),''])
             x0=10;
             y0=10;

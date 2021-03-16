@@ -14,7 +14,7 @@ rain = GRIDobj('.\Topo\HochRhein_MAP_1000m.tif');
 water = GRIDobj('.\Topo\HochRhein_WATER_1000m.tif');
 
 % UPLIFT
-uplift =  GRIDobj('.\Topo\uplift.tif');
+uplift =  GRIDobj('.\Topo\uplift_m_per_s.tif');
 uplift = resample(uplift,dem);
 
 % SED (sediment thickness in meters)
@@ -39,15 +39,15 @@ GRIDobj2grd(water,['./Topo/',dem.name,'.water']);
 LEM.experiment = 'baseline_test';                % Project name
 
 LEM.ErosPath = 'C:\\Projects\\EROS\\Hochrhein';    % Path to .exe
-LEM.outfolder = 'baseline_test';                 % folder to store results in
+LEM.outfolder = 'baseline_test\\rainfall';                 % folder to store results in
 
 LEM.inflow = 1060;                          % [m3s-1]water inflow at source cells
-LEM.rainfall = 3e-8;
+LEM.rainfall = 3.17e-11;                    % Sets the precipitation rate per unit surface when multiplied by the rainfall map
 LEM.initial_sediment_stock = 0;             % [%] volumetric sediment inflow at source cells)
 LEM.inertia = 0;                            % refers to inertia term in shallow water equation
 
 LEM.begin = 0;     LEM.begin_option = 'time';                        % start time
-LEM.end = 100e7;   LEM.end_option = 'time';                           % length of model run
+LEM.end = 7e7;   LEM.end_option = 'time';                           % length of model run
 LEM.draw = 1e6;    LEM.draw_option = 'time';                           % output interval
 LEM.step = 1e3;    LEM.step_option = 'volume';
 LEM.stepmin = 1e3;
@@ -56,10 +56,9 @@ LEM.initbegin = 1e+3;                                   % initialization time (-
 LEM.initend = 1e+3;
 LEM.initstep = 2;
 
-LEM.TU = 0.01;                              % unknown parameter
-LEM.TU_coefficient = 1;
+LEM.TU_coefficient = 1;                     % sets the proportion of rain pixels that make up 1 TU
 LEM.flow_model = 'stationary:pow';
-LEM.erosion_multiply = 1;
+LEM.erosion_multiply = 1;                   %multiplying factor for erosion rates. Equivalent to consider an "erosion time" larger than the hydrodynamic time
 
 LEM.limiter = 1e-1;
 %--------------------------------------------------------------------------
