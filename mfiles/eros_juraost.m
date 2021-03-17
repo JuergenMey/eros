@@ -44,7 +44,7 @@ GRIDobj2grd(cs,['./Topo/',dem.name,'.cs']);
 LEM.experiment = 'juraost_test';                % Project name
 
 LEM.ErosPath = 'C:\\Projects\\EROS\\Hochrhein';    % Path to .exe
-LEM.outfolder = 'juraost_test\\xi30\\step10\\new';                 % folder to store results in
+LEM.outfolder = 'output\\juraost_test\\xi30\\step10\\new';                 % folder to store results in
 
 % LEM.inflow = 1153;                          % [m3s-1]water inflow at source cells
 LEM.rainfall = 1;                      % Sets the precipitation rate per unit surface when multiplied by the rainfall map

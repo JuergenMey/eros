@@ -19,7 +19,7 @@ uplift =  GRIDobj('.\Topo\uplift_m_per_s_baselevel_Basel.tif');
 uplift = resample(uplift,dem);
 
 % SED (sediment thickness in meters)
-sed = GRIDobj('.\Topo\Hochrhein_SED_1000m.tif');
+% sed = GRIDobj('.\Topo\Hochrhein_SED_1000m.tif');
 % sed = dem*0;
 % sed.Z(~isnan(sed.Z))=10;
 
@@ -41,7 +41,7 @@ GRIDobj2grd(water,['./Topo/',dem.name,'.water']);
 LEM.experiment = 'baseline_test';                % Project name
 
 LEM.ErosPath = 'C:\\Projects\\EROS\\Hochrhein';    % Path to .exe
-LEM.outfolder = 'baseline_test\\lake_filling';                 % folder to store results in
+LEM.outfolder = 'output\\baseline_test\\lake_filling';                 % folder to store results in
 
 % LEM.inflow = 1060;                          % [m3s-1]water inflow at source cells
 LEM.rainfall = 7.6e-8*10;                      % Sets the precipitation rate per unit surface when multiplied by the rainfall map
@@ -60,7 +60,7 @@ LEM.initstep = 2;
 LEM.TU_coefficient = 1;                 % sets the proportion of rain pixels that make up 1 TU
 LEM.flow_model = 'stationary:pow';
 LEM.erosion_multiply = 1000;%15654;               % multiplying factor for erosion rates. Equivalent to consider an "erosion time" larger than the hydrodynamic time
-LEM.uplift_multiplier = 425516*0.5;%15654;
+LEM.uplift_multiplier = 425516.25;%15654;
 
 LEM.limiter = 1e-1;
 LEM.continue_run = -1;                  % continue previous simulation from the specified stage (-1 for new run)
