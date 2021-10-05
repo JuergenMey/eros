@@ -5,11 +5,11 @@ function writeErosInputs(LEM)
 % define outputs to write
 switch LEM.stress 
     case 1
-        LEM.str_write = strcat(LEM.str_write,':stress');
+        LEM.str_write = strcat(LEM.str_write,'stress');
     case 0
-        LEM.str_nowrite = strcat(LEM.str_nowrite,':stress');
+        LEM.str_nowrite = strcat(LEM.str_nowrite,'stress');
 end
-switch LEM.water 
+switch LEM.waters 
     case 1
         LEM.str_write = strcat(LEM.str_write,':water');
     case 0
@@ -45,17 +45,29 @@ switch LEM.capacity
     case 0
         LEM.str_nowrite = strcat(LEM.str_nowrite,':capacity');
 end
-switch LEM.rainfall
-    case 1
-        LEM.str_write = strcat(LEM.str_write,':rainfall');
-    case 0
-        LEM.str_nowrite = strcat(LEM.str_nowrite,':rainfall');
-end
+% switch LEM.rainfall
+%     case 1
+%         LEM.str_write = strcat(LEM.str_write,':rainfall');
+%     case 0
+%         LEM.str_nowrite = strcat(LEM.str_nowrite,':rainfall');
+% end
 switch LEM.sediment
     case 1
         LEM.str_write = strcat(LEM.str_write,':sediment');
     case 0
         LEM.str_nowrite = strcat(LEM.str_nowrite,':sediment');
+end
+switch LEM.flux
+    case 1
+        LEM.str_write = strcat(LEM.str_write,':precipiton_flux');
+    case 0
+        LEM.str_nowrite = strcat(LEM.str_nowrite,':precipiton_flux');
+end
+switch LEM.stock
+    case 1
+        LEM.str_write = strcat(LEM.str_write,':stock');
+    case 0
+        LEM.str_nowrite = strcat(LEM.str_nowrite,':stock');
 end
 
 fileID = fopen([LEM.experiment,'.arg'],'w');
@@ -67,55 +79,85 @@ fileID = fopen('./dat/inputs.dat','w');
 fprintf(fileID, ['erosion_model=',LEM.erosion_model,'\n']); 
 fprintf(fileID, ['deposition_model=',LEM.deposition_model,'\n']);
 % ALLUVIAL
-fprintf(fileID, ['fluvial_stress_exponent=',num2str(LEM.fluvial_stress_exponent),'\n']);
-fprintf(fileID, ['fluvial_river-to-bed_transfert_length=',num2str(LEM.deposition_length),'\n']); % be aware of the t in transfert_length
-fprintf(fileID, ['fluvial_erodability=',num2str(LEM.fluvial_erodability),'\n']);
-fprintf(fileID, ['fluvial_sediment_threshold=',num2str(LEM.fluvial_sediment_threshold),'\n']);
-% Lateral erosion/deposition
-fprintf(fileID, ['fluvial_lateral_erosion_coefficient=',num2str(LEM.fluvial_lateral_erosion_coefficient),':dir\n']);
-fprintf(fileID, ['fluvial_lateral_deposition_coefficient=',num2str(LEM.fluvial_lateral_deposition_coefficient),'\n']);
+fprintf(fileID, ['deposition_length_fluvial=',num2str(LEM.deposition_length),'\n']); 
+fprintf(fileID, ['sediment_grain=',num2str(LEM.sediment_grain),'\n']);
 
-fprintf(fileID, ['outbend_erosion_coefficient=',num2str(LEM.outbend_erosion_coefficient),'\n']);
-fprintf(fileID, ['inbend_erosion_coefficient=',num2str(LEM.inbend_erosion_coefficient),'\n']);
+
+% Lateral erosion/deposition
+fprintf(fileID, ['lateral_erosion_model=',num2str(LEM.lateral_erosion_model),'\n']);
+fprintf(fileID, ['lateral_deposition_model=',num2str(LEM.lateral_deposition_model),'\n']);
+
+fprintf(fileID, ['lateral_erosion_coefficient_fluvial=',num2str(LEM.fluvial_lateral_erosion_coefficient),'\n']);
+fprintf(fileID, ['lateral_deposition_coefficient_fluvial=',num2str(LEM.fluvial_lateral_deposition_coefficient),'\n']);
+
 
 
 % BEDROCK
-fprintf(fileID, ['fluvial_basement_erodability=',num2str(LEM.fluvial_basement_erodability),'\n']);
-fprintf(fileID, ['fluvial_basement_threshold=',num2str(LEM.fluvial_basement_threshold),'\n']);
+fprintf(fileID, ['poisson_coefficient=',num2str(LEM.poisson_coefficient),'\n']);
+fprintf(fileID, ['diffusion_coefficient=',num2str(LEM.diffusion_coefficient),'\n']);
+fprintf(fileID, ['basement_grain=',num2str(LEM.basement_grain),'\n']);
+fprintf(fileID, ['basement_erodibility=',num2str(LEM.fluvial_basement_erodability),':dir\n']);
+
+
+
 
 % FLOW MODEL
-fprintf(fileID, ['flood_model=',num2str(LEM.flood_model),'\n']);
 fprintf(fileID, ['flow_model=',LEM.flow_model,'\n']);
 fprintf(fileID, ['friction_coefficient=',num2str(LEM.friction_coefficient),'\n']);
-fprintf(fileID, ['flow_only=',num2str(LEM.flow_only),'\n']);
+fprintf(fileID, ['flow_boundary=',num2str(LEM.flow_boundary),'\n']);
+fprintf(fileID, ['stress_model=',num2str(LEM.stress_model),'\n']);
+
+
 
 % Boundary conditions
 % Topo
-fprintf(fileID, ['topo=Topo\\',LEM.dem.name,'.alt:dir:short\n']);
+fprintf(fileID, ['topo=Topo\\',LEM.dem.name,'.alt\n']);
+if isfield(LEM,'rain')
 fprintf(fileID, ['rain=Topo\\',LEM.dem.name,'.rain\n']);
+end
+if isfield(LEM,'water')
+fprintf(fileID, ['water=Topo\\',LEM.dem.name,'.water\n']);
+end
+if isfield(LEM,'sed')
 fprintf(fileID, ['sed=Topo\\',LEM.dem.name,'.sed\n']);
+end
+if isfield(LEM,'uplift')
+fprintf(fileID, ['uplift=Topo\\',LEM.dem.name,'.uplift\n']);
+end
+if isfield(LEM,'cs')
+fprintf(fileID, ['cs=Topo\\',LEM.dem.name,'.cs\n']);
+end
 
-% inflow conditions
+% INFLOW/RAINFALL CONDITIONS
+if isfield(LEM,'inflow')
 fprintf(fileID, ['inflow=',num2str(LEM.inflow),':dir\n']);
-fprintf(fileID, ['initial_sediment_stock=',num2str(LEM.initial_sediment_stock),':dir\n']);
+end
+if isfield(LEM,'rainfall')
+fprintf(fileID, ['rainfall=',num2str(LEM.rainfall),':dir\n']);
+end
+fprintf(fileID, ['input_sediment_concentration=',num2str(LEM.initial_sediment_stock),':dir\n']);
 
 % Time
-fprintf(fileID, ['time:begin=',num2str(LEM.start),':end=',num2str(LEM.stop),':step=',num2str(LEM.step),':dir:volume:draw=',num2str(LEM.draw),'\n']);
-% fprintf(fileID, ['time:begin=',num2str(LEM.start),':end=',num2str(LEM.stop),':init=',num2str(LEM.init),':draw=',num2str(LEM.draw),'\n']);
-% fprintf(fileID, ['time:step=',num2str(LEM.step),':volume:min=',num2str(LEM.stepmin),':max=',num2str(LEM.stepmax),'\n']);
+fprintf(fileID, ['time:end=',num2str(LEM.end),':',LEM.end_option,'\n']);
+fprintf(fileID, ['time:draw=',num2str(LEM.draw),':',LEM.draw_option,':dir\n']);
+fprintf(fileID, ['time:step=',num2str(LEM.step),':dir:',LEM.step_option,'\n']);
+fprintf(fileID, ['time:step:min=',num2str(LEM.stepmin),':max=',num2str(LEM.stepmax),'\n']);
+fprintf(fileID, ['erosion_multiply=',num2str(LEM.erosion_multiply),':dir\n']);
+fprintf(fileID, ['uplift_rate=',num2str(LEM.uplift_multiplier),':dir\n']);
+
+
+
 
 % Default management
-fprintf(fileID, 'limiter=1e-3\n');
-% fprintf(fileID, 'adapt:all:log10:20:4000:2000\n\n');
+fprintf(fileID, ['limiter=',num2str(LEM.limiter),'\n']);
+fprintf(fileID, 'default:model=all:min=20:max=10000:step=4:op=*:log10\n');
 
 % Save parameters
 fprintf(fileID, ['write=',LEM.str_write,'\n']);
-% fprintf(fileID, ['-nowrite',LEM.str_nowrite,'\n\n']);
-% % fprintf(fileID, '# seed_and_time\n');
-fprintf(fileID, ['TU=',num2str(LEM.TU),':dir\n']);   % unknown parameter 
-fprintf(fileID, ['inertia=',num2str(LEM.inertia),':dir\n']);   % inertia in shallow water equation 
-fprintf(fileID, ['floodos=',LEM.floodos,':dir\n']);   % floodos mode 
-% fprintf(fileID, ['i=',num2str(LEM.i),':dir\n']);   % unknown parameter
+fprintf(fileID, ['TU_coefficient=',num2str(LEM.TU_coefficient),'\n']);   % unknown parameter 
+fprintf(fileID, ['flow_inertia_coefficient=',num2str(LEM.inertia),'\n']);   % inertia in shallow water equation 
+fprintf(fileID, ['friction_model=',LEM.friction_model,'\n']);   % floodos mode 
+fprintf(fileID, ['continue=',num2str(LEM.continue_run),'\n']);   % continue from stage
 fclose(fileID);
 
 % write .bat file
@@ -123,7 +165,7 @@ fileID = fopen([LEM.experiment,'.bat'],'w');
 fprintf(fileID, '@rem  Run Eros program with following arguments\n');
 fprintf(fileID, '@rem\n');
 fprintf(fileID, '@echo off\n');
-fprintf(fileID, ['@set EROS_PROG=',LEM.ErosPath,'\\bin\\eros7.exe\n']);
+fprintf(fileID, ['@set EROS_PROG=',LEM.ErosPath,'\\bin\\',LEM.eros_version,'.exe\n']);
 fprintf(fileID, '@set COMMAND=%%EROS_PROG%% %%*\n');
 fprintf(fileID, '@echo on\n');
 fprintf(fileID, '@rem\n\n');
