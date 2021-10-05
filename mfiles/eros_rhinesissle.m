@@ -9,7 +9,20 @@ dem=GRIDobj('./Topo/cop30DEM_utm32n_subset_carved.tif');
 
 
 % RAIN (sources (>0) and sinks (-1))
-rain = GRIDobj('.\Topo\rhinesissle_qin_30m_lessrain.tif');
+rain = GRIDobj('.\Topo\map_wc2.tif'); % MAP after WorldClim2 (mm/yr)
+rain = resample(rain,dem);
+rain = rain/1000; % convert to m/yr
+rain = rain/3600/24/365.25/dem.cellsize.^2; % convert to m^3/s
+
+% INFLOWS
+inflow_rhine = 1113; % (m^3/s)
+inflow_rhine_y = [63:68]; % y-location (column) of inlet
+inflow_rhine_x = ones(6,1)'*286; % x-location (row) of inlet
+inflow_rhine = inflow_rhine/length(inflow_rhine_x)/dem.cellsize.^2; % divide by number of inflow cells and by cellsize^2
+rain.Z(inflow_rhine_y,inflow_rhine_x(1)) = ones(length(inflow_rhine_x),1)*inflow_rhine;
+rain.Z(1:end,1)=-1;
+rain.Z(1,1:end)=-1;
+rain.Z(end,1:end)=-1;
 
 % INITIAL SEDIMENT CONCENTRATION
 cs = GRIDobj('./Topo/rhinesissle_cs_30m.tif');
@@ -49,7 +62,7 @@ GRIDobj2grd(cs,['./Topo/',dem.name,'.cs']);
 LEM.experiment = 'rhinesissle_test';                % Project name
 
 LEM.ErosPath = 'D:\\USER\\mey';    % Path to .exe
-LEM.outfolder = 'rhinesissle_test\\basement_cs';                 % folder to store results in
+LEM.outfolder = 'rhinesissle_test\\rgqs';                 % folder to store results in
 
 % LEM.inflow = 1060;                          % [m3s-1]water inflow at source cells
 LEM.rainfall = 2;                      % Sets the precipitation rate per unit surface when multiplied by the rainfall map
@@ -78,6 +91,8 @@ LEM.continue_run = -1;
 %--------------------------------------------------------------------------
 LEM.erosion_model = 'MPM';                  % (stream_power, shear_stress, shear_mpm)
 LEM.deposition_model = 'constant';          % need to know whether there are other options!
+LEM.eros_version = 'eros7.3.112';
+LEM.stress_model = 'rgqs';
 
 % ALLUVIAL
 LEM.fluvial_stress_exponent = 1.5;          % exponent in sediment flux eq. (MPM): qs = E(tau-tau_c)^a
