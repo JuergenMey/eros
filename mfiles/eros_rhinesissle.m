@@ -62,7 +62,7 @@ GRIDobj2grd(cs,['./Topo/',dem.name,'.cs']);
 LEM.experiment = 'rhinesissle_test';                % Project name
 
 LEM.ErosPath = 'D:\\USER\\mey';    % Path to .exe
-LEM.outfolder = 'rhinesissle_test\\rgqs';                 % folder to store results in
+LEM.outfolder = 'rhinesissle_test\\rghs';                 % folder to store results in
 
 % LEM.inflow = 1060;                          % [m3s-1]water inflow at source cells
 LEM.rainfall = 2;                      % Sets the precipitation rate per unit surface when multiplied by the rainfall map
@@ -92,7 +92,7 @@ LEM.continue_run = -1;
 LEM.erosion_model = 'MPM';                  % (stream_power, shear_stress, shear_mpm)
 LEM.deposition_model = 'constant';          % need to know whether there are other options!
 LEM.eros_version = 'eros7.3.112';
-LEM.stress_model = 'rgqs';
+LEM.stress_model = 'rghs';
 
 % ALLUVIAL
 LEM.fluvial_stress_exponent = 1.5;          % exponent in sediment flux eq. (MPM): qs = E(tau-tau_c)^a

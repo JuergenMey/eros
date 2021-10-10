@@ -1,3 +1,4 @@
+
 function [F] = erosanimation(variable,varargin)
 % Visualize output of the EROS landscape evolution model as animations (LEM)
 %
@@ -169,80 +170,215 @@ switch variable
         colors = 'jet';
 end
 
-% determine timesteps
-
-T = dir('*.ini');T = T(end);
-Z = dir(['*.',filetype]);
-[t,~] = fread_timeVec(T.name,length(Z));
-if isempty(t)
-    t=1:length(Z);
-end
-
-[~,index] = sortrows({Z.date}.');
-Z = Z(index);
-for i = 1:length(Z)
-    [z,~] = fopengrd(Z(i).name);
-    B(:,:,i) = z;
-    meanB(i)=mean(z(:));
-end
-switch mode
-    case 'average'
-                plot(t,meanB)
-                ylabel(iylabel);
-                xlabel('time');
-                grid on
-                B=meanB;
-    case 'movie2'
-        H = dir('*.alt');
-        Z = dir(['*.',filetype]);
-        [~,index] = sortrows({H.date}.');
-        H = H(index);
-        Z = Z(index);
-        w = waitbar(1/length(H),['Collecting movie frames ... ']);
-        for i = 1:length(H)-1
-            h = grd2GRIDobj(H(i+1).name);
-            z = grd2GRIDobj(Z(i+1).name);
-            z.Z(z.Z==0)=NaN;
-            imageschs(h,z,'colormap',colors,'caxis',[nanmin(B(:)),nanmax(B(:))],'colorbarylabel',iylabel);
-            title(['Time = ',num2str(t(i)),''])
-            set(gcf,'Visible','off')
-            F(i) = getframe(gcf);
-            close all
-            waitbar(i/length(H))
-        end
-        close(w)
-        f = figure;
-        movie(f,F,1,10)
-        close(f)
-        B = F;
-    case 'movie3'
-        H = dir('*.alt');
-        %         Z = dir(['*.',filetype]);
-        [~,index] = sortrows({H.date}.');
-        H = H(index);
-        %         Z = Z(index);
-        w = waitbar(1/length(H),['Collecting movie frames ... ']);
-        for i = 1:length(H)
-            h = grd2GRIDobj(H(i).name);
-            %             z = grd2GRIDobj(Z(i).name);
-            [xm,ym] = getcoordinates(h);
-            axis off
-            surface(xm,ym,h.Z,'EdgeColor','none');colorbar
-            view(viewdir(1),viewdir(2))
-            axis equal
-            c = colorbar;
-            c.Label.String = 'Elevation (m)';
-            colormap(landcolor)
-            %             caxis([nanmin(B(:)),nanmax(B(:))])
-            title(['Time = ',num2str(t(i)),''])
-            set(gcf,'Visible','off')
-            F(i) = getframe(gcf);
-            close all
-            waitbar(i/length(H))
-        end
-        close(w)
-        f = figure;
-        movie(f,F,1,10)
-        close(f)
-        B = F;
+if strcmp(variable,'sprofile')
+    FD = FLOWobj(dem,'preprocess','c');
+    S = STREAMobj(FD,flowacc(FD)>flowmin);
+    S2 = modify(S,'interactive','reachselect');
+    marker = round(linspace(1,length(S2.distance),10));
+    H = dir('*.alt');
+    W = dir('*.water');
+    S = dir('*.sed');
+    D = dir('*.flux');
+    
+    [~,index] = sortrows({H.date}.');
+    H = H(index);
+    W = W(index);
+    S = S(index);
+    D = D(index);
+    
+    for i = 1:length(D)
+        [z,~] = fopengrd(D(i).name);
+        z(z==0)=NaN;
+        B(:,:,i) = z;
+    end
+    
+    sed = grd2GRIDobj(S(1).name,dem);
+    w = waitbar(1/length(H),['Collecting movie frames ... ']);
+    for i=1:length(H)
+        h=figure;
+        subplot(2,1,1)
+        water2 = grd2GRIDobj(W(i).name,dem);
+        dem2 = grd2GRIDobj(H(i).name,dem);
+        sed2 = grd2GRIDobj(S(i).name,dem);
+        plotdz(S2,dem,'color',[0.9 0.9 0.9]);hold on
+        plotdz(S2,dem-sed,'color',[0.7 0.7 0.7])
+        plotdz(S2,dem2+water2,'color',[0 0.61 1])
+        
+        plotdz(S2,dem2,'color',[1 0.5 0.1]);hold on
+        plotdz(S2,dem2-sed2,'color','k')
+        xlim([0 S2.distance(end)])
+        yl(i,1:2) = ylim;
+        ylim([yl(1,1),yl(1,2)+20]);
+        title(['Time = ',num2str(i),''])
+        xlabel('Distance (m)')
+        ylabel('Elevation (m)');
+        legend({'Initial topo','Initial bedrock','Water','Sediment','Bedrock'},'Location','northwest')
+        legend('boxoff')
+        
+        
+        subplot(2,1,2)
+        flux = grd2GRIDobj(D(i).name,dem);
+        flux.Z(flux.Z==0)=NaN;
+        imageschs(dem2,flux,'colormap','flowcolor','caxis',[nanmin(B(:)),nanmax(B(:))],'colorbarylabel','Water discharge (m^3/s)');
+        hold on;
+        plot(S2,'k--')
+%         scatter(S2.x(marker),S2.y(marker),'k')
+        text(S2.x(marker),S2.y(marker),num2str(round(S2.distance(marker)/1000)),'FontWeight','bold')
+        x0=10;
+        y0=10;
+        width=2200;
+        height=1900/2;
+        set(gcf,'position',[x0,y0,width,height])
+        set(gcf,'Visible','off')
+        F(i) = getframe(gcf);
+        close all
+        waitbar(i/length(H))
+    end
+    close(w)
+elseif strcmp(variable,'profile')
+    H = dir('*.alt');
+    W = dir('*.water');
+    S = dir('*.sed');
+    D = dir('*.flux');
+    
+    [~,index] = sortrows({H.date}.');
+    H = H(index);
+    W = W(index);
+    S = S(index);
+    D = D(index);
+    
+    for i = 1:length(D)
+        [z,~] = fopengrd(D(i).name);
+        z(z==0)=NaN;
+        B(:,:,i) = z;
+    end
+    
+    
+    sed = grd2GRIDobj(S(1).name,dem);
+    [d,z,x,y] = demprofile(dem);
+    [~,sz0] = demprofile(sed,[],x,y);
+    
+    w = waitbar(1/length(H),['Collecting movie frames ... ']);
+    for i=1:length(H)
+        h=figure;
+        subplot(2,1,1)
+        water2 = grd2GRIDobj(W(i).name,dem);
+        dem2 = grd2GRIDobj(H(i).name,dem);
+        sed2 = grd2GRIDobj(S(i).name,dem);
+        [~,hz] = demprofile(dem2,[],x,y);
+        [~,wz] = demprofile(water2,[],x,y);
+        [~,sz] = demprofile(sed2,[],x,y);
+        
+        plot(d,z,'color',[0.9 0.9 0.9]);hold on
+        plot(d,z-sz0,'color',[0.7 0.7 0.7])
+        plot(d,hz+wz,'color',[0 0.61 1])
+        
+        plot(d,hz,'color',[1 0.5 0.1]);hold on
+        plot(d,hz-sz,'color','k')
+        xlim([0 d(end)])
+        yl(i,1:2) = ylim;
+        ylim([yl(1,1),yl(1,2)+20]);
+        title(['Time = ',num2str(i),''])
+        xlabel('Distance (m)')
+        ylabel('Elevation (m)');
+        
+        
+        subplot(2,1,2)
+        flux = grd2GRIDobj(D(i).name,dem);
+        flux.Z(flux.Z==0)=NaN;
+        imageschs(dem2,flux,'colormap','flowcolor','caxis',[nanmin(B(:)),nanmax(B(:))],'colorbarylabel','Water discharge (m^3/s)');
+        hold on;
+        plot(x,y,'k--')
+        text(x(1)+10,y(1)+10,'left');
+        text(x(end)+10,y(end)+10,'right');
+        x0=10;
+        y0=10;
+        width=2200;
+        height=1900/2;
+        set(gcf,'position',[x0,y0,width,height])
+        set(gcf,'Visible','off')
+        F(i) = getframe(gcf);
+        close all
+        waitbar(i/length(H))
+    end
+    close(w)
+else
+    
+    T = dir('*.ini');
+    Z = dir(['*.',filetype]);
+    [t,~] = fread_timeVec(T.name,length(Z));
+    if isempty(t)
+        t=1:length(Z);
+    end
+    if isnan(t)
+        t=1:length(Z);
+    end
+    
+    [~,index] = sortrows({Z.date}.');
+    Z = Z(index);
+    for i = 1:length(Z)
+        [z,~] = fopengrd(Z(i).name);
+        z(z==0)=NaN;
+        B(:,:,i) = z;
+    end
+    switch mode
+        case 'movie2'
+            H = dir('*.alt');
+            Z = dir(['*.',filetype]);
+            [~,index] = sortrows({H.date}.');
+            H = H(index);
+            Z = Z(index);
+            w = waitbar(1/length(H),['Collecting movie frames ... ']);
+            for i = 1:length(H)-1
+                h = grd2GRIDobj(H(i+1).name);
+                z = grd2GRIDobj(Z(i+1).name);
+                z.Z(z.Z==0)=NaN;
+                %imageschs(h,z,'colormap',colors,'caxis',[0,1],'colorbarylabel',iylabel);
+                imageschs(h,z,'colormap',colors,'caxis',[nanmin(B(:)),nanmax(B(:))],'colorbarylabel',iylabel);
+                %set(gca,'ColorScale','log')
+                title(['Time = ',num2str(t(i)),''])
+                x0=10;
+                y0=10;
+                width=2200;
+                height=1900;
+                set(gcf,'position',[x0,y0,width,height])
+                set(gcf,'Visible','off')
+                F(i) = getframe(gcf);
+                close all
+                waitbar(i/length(H))
+            end
+            close(w)
+            
+        case 'movie3'
+            H = dir('*.alt');
+            [~,index] = sortrows({H.date}.');
+            H = H(index);
+            w = waitbar(1/length(H),['Collecting movie frames ... ']);
+            for i = 1:length(H)
+                h = grd2GRIDobj(H(i).name);
+                [xm,ym] = getcoordinates(h);
+                axis off
+                surface(xm,ym,h.Z,'EdgeColor','none');colorbar
+                view(viewdir(1),viewdir(2))
+                axis equal
+                c = colorbar;
+                c.Label.String = 'Elevation (m)';
+                colormap(landcolor)
+                caxis([nanmin(B(:)),nanmax(B(:))])
+                title(['Time = ',num2str(t(i)),''])
+                x0=10;
+                y0=10;
+                width=2200;
+                height=1900;
+                set(gcf,'position',[x0,y0,width,height])
+                set(gcf,'Visible','off')
+                F(i) = getframe(gcf);
+                close all
+                waitbar(i/length(H))
+            end
+            close(w)
+            
+    end
+    
+    
 end

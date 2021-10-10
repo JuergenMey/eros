@@ -99,6 +99,7 @@ switch variable
     case {'qs','qs_out','qs_in'}
         iylabel = 'Sediment flux (m^3/s)';
     case 'slope'
+        variable = 'slope_eff';
         iylabel = 'Slope (%)';
     case 'dt'
         iylabel = 'Time steps';
