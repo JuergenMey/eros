@@ -154,23 +154,3 @@ fprintf(fileID, 'default:model=all:min=20:max=10000:step=4:op=*:log10\n');
 
 % Save parameters
 fprintf(fileID, ['write=',LEM.str_write,'\n']);
-fprintf(fileID, ['TU_coefficient=',num2str(LEM.TU_coefficient),'\n']);   % unknown parameter 
-fprintf(fileID, ['flow_inertia_coefficient=',num2str(LEM.inertia),'\n']);   % inertia in shallow water equation 
-fprintf(fileID, ['friction_model=',LEM.friction_model,'\n']);   % floodos mode 
-fprintf(fileID, ['continue=',num2str(LEM.continue_run),'\n']);   % continue from stage
-fclose(fileID);
-
-% write .bat file
-fileID = fopen([LEM.experiment,'.bat'],'w');
-fprintf(fileID, '@rem  Run Eros program with following arguments\n');
-fprintf(fileID, '@rem\n');
-fprintf(fileID, '@echo off\n');
-fprintf(fileID, ['@set EROS_PROG=',LEM.ErosPath,'\\bin\\',LEM.eros_version,'.exe\n']);
-fprintf(fileID, '@set COMMAND=%%EROS_PROG%% %%*\n');
-fprintf(fileID, '@echo on\n');
-fprintf(fileID, '@rem\n\n');
-fprintf(fileID, 'goto:todo\n\n');
-fprintf(fileID, ':not_todo\n\n');
-fprintf(fileID, ':todo\n\n\n');
-fprintf(fileID, ['start /LOW %%COMMAND%% -dir=',LEM.outfolder,'\\ ',LEM.experiment,'.arg']);
-fclose(fileID);
