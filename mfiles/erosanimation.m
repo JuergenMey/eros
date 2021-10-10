@@ -1,5 +1,5 @@
-function [B,varargout] = erosanimation(variable,varargin)
-% Visualize output of the EROS landscape evolution model (LEM)
+function [F] = erosanimation(variable,varargin)
+% Visualize output of the EROS landscape evolution model as animations (LEM)
 %
 %
 % The following function library is required, which can be downloaded
@@ -17,13 +17,14 @@ function [B,varargout] = erosanimation(variable,varargin)
 %
 % DESCRIPTION
 %
-%   erosanimation shows timeseries data either as grid average or as 2d/3d movie
+%   erosanimation creates movie frames of landscape evolution either in
+%   profile view, map view or in 3d.
 %
 %
 % INPUT (required)
 %
 %   variable       variable of interest (string)
-%                  'topo'  Topographic elevation
+%                  'topo'       Topographic elevation
 %                  'sediment'   Sediment thickness
 %                  'water'      Water depth
 %                  'discharge'  Water discharge
@@ -36,13 +37,15 @@ function [B,varargout] = erosanimation(variable,varargin)
 %                  'hum'        Water discharge on the topography
 %                  'rain'       Sources (>0) and sinks (-1) of water and sediment
 %
+%                  'profile'    custom profile, second argument needs to be a DEM (GRIDobj)
+%                  'sprofile'   stream long profile, second argument needs to be a DEM (GRIDobj)
+%
 % INPUT (optional)
 %
 %   Parameter name/value pairs (pn,pv,...)
 %
 %   'mode'         visualization mode (string) (default: 'movie2')
-%                  'average'    shows the evolution of the spatial average
-%                               of the variable defined as required input
+%
 %                  'movie2'     2d movie of variable
 %                  'movie3'     3d movie of topographic evolution
 %
@@ -54,13 +57,7 @@ function [B,varargout] = erosanimation(variable,varargin)
 %
 % OUTPUT
 %
-%   B              movie frames captured with modes 'movie2' and 'movie3'
-%   B              (mode='average') 3d array of the variable of interest.
-%
-%
-% OUTPUT (optional)
-%
-%   meanB       spatial average of variable through time           
+%   F              movie frames
 %
 % EXAMPLE
 %
@@ -98,21 +95,28 @@ function [B,varargout] = erosanimation(variable,varargin)
 % Date: 28. May, 2020
 
 p = inputParser;
-expectedInput_variable = {'topo','water','sediment','qs',...
-    'discharge','downward','stress','hum','slope','capacity','stock'};
+expectedInput_variable = {'topo','water','sediment','flux','qs',...
+    'discharge','downward','stress','hum','slope','capacity','stock','sprofile','profile'};
 addRequired(p,'variable',@(x) any(validatestring(x,expectedInput_variable)));
+if strcmp(variable,'sprofile') || strcmp(variable,'profile')
+    addRequired(p,'dem',@(x)isa(x,'GRIDobj'));
+    default_flowmin = 100;
+    addParameter(p,'flowmin',default_flowmin,@isnumeric);
+    parse(p,variable,varargin{:});
+    dem = p.Results.dem;
+    flowmin = p.Results.flowmin;
+else
+    default_mode = 'movie2';
+    expectedInput_mode = {'movie2','movie3'};
+    addParameter(p,'mode',default_mode,@(x) any(validatestring(x,expectedInput_mode)));
+    default_viewdir = [45,45];
+    addParameter(p,'viewdir',default_viewdir,@isnumeric);
+    parse(p,variable,varargin{:});
+    mode = p.Results.mode;
+    viewdir = p.Results.viewdir;
+end
 
-default_mode = 'movie2';
-expectedInput_mode = {'average','movie2','movie3'};
-addParameter(p,'mode',default_mode,@(x) any(validatestring(x,expectedInput_mode)));
 
-default_viewdir = [45,45];
-addParameter(p,'viewdir',default_viewdir,@isnumeric);
-
-parse(p,variable,varargin{:});
-
-mode = p.Results.mode;
-viewdir = p.Results.viewdir;
 
 switch variable
     case 'topo'
@@ -133,6 +137,10 @@ switch variable
         colors = 'jet';
     case 'discharge'
         filetype = 'discharge';
+        iylabel = 'Water discharge (m^3/s)';
+        colors = 'flowcolor';
+    case 'flux'
+        filetype = 'flux';
         iylabel = 'Water discharge (m^3/s)';
         colors = 'flowcolor';
     case 'downward'
