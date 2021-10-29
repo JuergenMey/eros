@@ -88,7 +88,7 @@ LEM.eros_version = 'eros7.3.112';
 
 % LEM.inflow = 1060;                          % [m3s-1]water inflow at source cells
 LEM.rainfall = 1;                      % Sets the precipitation rate per unit surface when multiplied by the rainfall map
-LEM.initial_sediment_stock = 0.001;             % % The total "stock" of sediment at the precipiton landing is:  input_sediment_concentration*cs_map[i]*Precipiton_volume
+LEM.initial_sediment_stock = '0.001:dir';             % % The total "stock" of sediment at the precipiton landing is:  input_sediment_concentration*cs_map[i]*Precipiton_volume
 LEM.inertia = 0;                            % refers to inertia term in shallow water equation
 
 LEM.begin = 0;          LEM.begin_option = 'time';                        % start time

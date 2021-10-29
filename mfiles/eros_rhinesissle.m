@@ -66,14 +66,14 @@ LEM.outfolder = 'rhinesissle_test\\rghs';                 % folder to store resu
 
 % LEM.inflow = 1060;                          % [m3s-1]water inflow at source cells
 LEM.rainfall = 2;                      % Sets the precipitation rate per unit surface when multiplied by the rainfall map
-LEM.initial_sediment_stock = 0.001;             % % The total "stock" of sediment at the precipiton landing is:  input_sediment_concentration*cs_map[i]*Precipiton_volume
+LEM.initial_sediment_stock = '0.01:dir';             % % The total "stock" of sediment at the precipiton landing is:  input_sediment_concentration*cs_map[i]*Precipiton_volume
 LEM.inertia = 0;                            % refers to inertia term in shallow water equation
 
 LEM.begin = 0;          LEM.begin_option = 'time';                        % start time
 LEM.end = 90e5;          LEM.end_option = 'time';                           % length of model run
 LEM.draw = 3000;        LEM.draw_option = 'time';                           % output interval
-LEM.step = 0.5e2;         LEM.step_option = 'volume'; 
-LEM.stepmin = 1e1;
+LEM.step = 0.1e2;         LEM.step_option = 'volume'; 
+LEM.stepmin = 0.1e1;
 LEM.stepmax = 1e4;
 LEM.initbegin = 1e+1;                                   % initialization time (-)
 LEM.initend = 1e+1;
