@@ -45,12 +45,6 @@ switch LEM.capacity
     case 0
         LEM.str_nowrite = strcat(LEM.str_nowrite,':capacity');
 end
-% switch LEM.rainfall
-%     case 1
-%         LEM.str_write = strcat(LEM.str_write,':rainfall');
-%     case 0
-%         LEM.str_nowrite = strcat(LEM.str_nowrite,':rainfall');
-% end
 switch LEM.sediment
     case 1
         LEM.str_write = strcat(LEM.str_write,':sediment');
@@ -135,7 +129,7 @@ end
 if isfield(LEM,'rainfall')
 fprintf(fileID, ['rainfall=',num2str(LEM.rainfall),':dir\n']);
 end
-fprintf(fileID, ['input_sediment_concentration=',num2str(LEM.initial_sediment_stock),':dir\n']);
+fprintf(fileID, ['input_sediment_concentration=',num2str(LEM.initial_sediment_stock),'\n']);
 
 % Time
 fprintf(fileID, ['time:end=',num2str(LEM.end),':',LEM.end_option,'\n']);
