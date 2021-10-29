@@ -9,20 +9,23 @@ dem=GRIDobj('./Topo/HochRhein_LAKE_1000m.tif');
 
 
 % RAIN (sources (>0) and sinks (-1))
-rain = GRIDobj('.\Topo\HochRhein_MAP_1000m.tif');
+rain = GRIDobj('.\Topo\map_wc2.tif'); % MAP after WorldClim2 (mm/yr)
+rain = resample(rain,dem);
+rain = rain/1000; % convert to m/yr
+rain = rain/3600/24/365.25/dem.cellsize.^2; % convert to m^3/s
 
 % WATER
 water = GRIDobj('.\Topo\HochRhein_WATER+LAKE_1000m.tif');
 
 % UPLIFT
-% uplift =  GRIDobj('.\Topo\uplift_m_per_s_baselevel_Basel.tif');
 uplift =  GRIDobj('.\Topo\uplift_m_per_s_nagra_baselevel_Basel.tif');
 uplift = resample(uplift,dem);
 
-% SED (sediment thickness in meters)
-sed = GRIDobj('.\Topo\Hochrhein_SEDLAKE_1000m.tif');
-% sed = dem*0;
-% sed.Z(~isnan(sed.Z))=10;
+% SEDIMENT (sediment thickness in meters)
+sed = GRIDobj('.\Topo\mqu_140715g_utm32n.tif');
+sed = resample(sed,dem);
+sed.Z(isnan(sed.Z))=0;
+
 
 LEM.dem = dem;
 LEM.rain = rain;
@@ -39,29 +42,31 @@ GRIDobj2grd(water,['./Topo/',dem.name,'.water']);
 %%                           DEFINE INPUT PARAMETERS
 %--------------------------------------------------------------------------
 
-LEM.experiment = 'baseline_test';                % Project name
+LEM.experiment = 'baseline';                % Project name
 
 LEM.ErosPath = 'D:\\USER\\mey';    % Path to .exe
-LEM.outfolder = 'baseline_test\\sediments';                 % folder to store results in
+LEM.outfolder = 'baseline\\test01';                 % folder to store results in
+LEM.eros_version = 'eros7.3.112';
 
-% LEM.inflow = 1060;                          % [m3s-1]water inflow at source cells
-LEM.rainfall = 7.6e-8*10;                      % Sets the precipitation rate per unit surface when multiplied by the rainfall map
+
+LEM.rainfall = 2;                      % Sets the precipitation rate per unit surface when multiplied by the rainfall map
 LEM.initial_sediment_stock = 0;             % [%] volumetric sediment inflow at source cells)
 LEM.inertia = 0;                            % refers to inertia term in shallow water equation
 
-LEM.end = 3e8;          LEM.end_option = 'time';                           % length of model run
-LEM.draw = 3e4;     LEM.draw_option = 'time';                           % output interval
-LEM.step = 1e3;         LEM.step_option = 'volume'; 
-LEM.stepmin = 1e2;
+LEM.begin = 0;          LEM.begin_option = 'time';                        % start time
+LEM.end = 90e5;          LEM.end_option = 'time';                           % length of model run
+LEM.draw = 10000;        LEM.draw_option = 'time';                           % output interval
+LEM.step = 0.05e2;         LEM.step_option = 'volume'; 
+LEM.stepmin = 0.5e1;
 LEM.stepmax = 1e4;
-LEM.initbegin = 1e+3;                                   % initialization time (-)
-LEM.initend = 1e+3;
+LEM.initbegin = 1e+1;                                   % initialization time (-)
+LEM.initend = 1e+1;
 LEM.initstep = 2;
 
 LEM.TU_coefficient = 1;                 % sets the proportion of rain pixels that make up 1 TU
 LEM.flow_model = 'stationary:pow';
 LEM.erosion_multiply = 1000;%15654;               % multiplying factor for erosion rates. Equivalent to consider an "erosion time" larger than the hydrodynamic time
-LEM.uplift_multiplier = 425516;%15654;
+LEM.uplift_multiplier = 7000000;%15654;
 
 LEM.limiter = 1e-1;
 LEM.continue_run = -1;                  % continue previous simulation from the specified stage (-1 for new run)
@@ -70,6 +75,7 @@ LEM.continue_run = -1;                  % continue previous simulation from the 
 %--------------------------------------------------------------------------
 LEM.erosion_model = 'MPM';                  % (stream_power, shear_stress, shear_mpm)
 LEM.deposition_model = 'constant';          % need to know whether there are other options!
+LEM.stress_model = 'rgqs:dir';
 
 % ALLUVIAL
 LEM.deposition_length = 1000;                  % [m] xi in vertical erosion term: edot = qs/xi
@@ -81,12 +87,17 @@ LEM.lateral_erosion_model = 1;
 LEM.lateral_deposition_model = 'constant';
 
 % BEDROCK
+LEM.fluvial_basement_erodability = 0.1;
+LEM.fluvial_basement_threshold = 0.5;
+
+LEM.outbend_erosion_coefficient = 1.000000;
+LEM.inbend_erosion_coefficient = 1.00000;
 
 
 LEM.poisson_coefficient = 5;
 LEM.diffusion_coefficient = 4;
-LEM.sediment_grain = 0.025;
-LEM.basement_grain = 0.25;
+LEM.sediment_grain = 0.0025;
+LEM.basement_grain = 0.025;
 %--------------------------------------------------------------------------
 % FLOW MODEL
 %--------------------------------------------------------------------------
