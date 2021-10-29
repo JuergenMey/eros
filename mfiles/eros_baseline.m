@@ -13,6 +13,7 @@ rain = GRIDobj('.\Topo\map_wc2.tif'); % MAP after WorldClim2 (mm/yr)
 rain = resample(rain,dem);
 rain = rain/1000; % convert to m/yr
 rain = rain/3600/24/365.25/dem.cellsize.^2; % convert to m^3/s
+rain.Z(isnan(dem.Z))=-1;
 
 % WATER
 water = GRIDobj('.\Topo\HochRhein_WATER+LAKE_1000m.tif');
@@ -56,11 +57,11 @@ LEM.inertia = 0;                            % refers to inertia term in shallow 
 LEM.begin = 0;          LEM.begin_option = 'time';                        % start time
 LEM.end = 90e5;          LEM.end_option = 'time';                           % length of model run
 LEM.draw = 10000;        LEM.draw_option = 'time';                           % output interval
-LEM.step = 0.05e2;         LEM.step_option = 'volume'; 
-LEM.stepmin = 0.5e1;
+LEM.step = 1000;         LEM.step_option = 'volume'; 
+LEM.stepmin = 100;
 LEM.stepmax = 1e4;
-LEM.initbegin = 1e+1;                                   % initialization time (-)
-LEM.initend = 1e+1;
+LEM.initbegin = 1e+3;                                   % initialization time (-)
+LEM.initend = 1e+3;
 LEM.initstep = 2;
 
 LEM.TU_coefficient = 1;                 % sets the proportion of rain pixels that make up 1 TU
