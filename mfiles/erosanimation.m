@@ -180,7 +180,7 @@ if strcmp(variable,'sprofile')
     S = dir('*.sed');
     D = dir('*.flux');
     
-    [~,index] = sortrows({H.date}.');
+    [~,index] = sortrows({H.datenum}.');
     H = H(index);
     W = W(index);
     S = S(index);
@@ -200,12 +200,12 @@ if strcmp(variable,'sprofile')
         water2 = grd2GRIDobj(W(i).name,dem);
         dem2 = grd2GRIDobj(H(i).name,dem);
         sed2 = grd2GRIDobj(S(i).name,dem);
-        plotdz(S2,dem,'color',[0.9 0.9 0.9]);hold on
-        plotdz(S2,dem-sed,'color',[0.7 0.7 0.7])
-        plotdz(S2,dem2+water2,'color',[0 0.61 1])
+        plotdz(S2,dem,'color',[0.9 0.9 0.9]);hold on % initial river profile
+        plotdz(S2,dem-sed,'color',[0.7 0.7 0.7]) % initial bedrock profile
+        plotdz(S2,dem2+water2,'color',[0 0.61 1]) % water surface
         
-        plotdz(S2,dem2,'color',[1 0.5 0.1]);hold on
-        plotdz(S2,dem2-sed2,'color','k')
+        plotdz(S2,dem2,'color',[1 0.5 0.1]);hold on % updated river profile
+        plotdz(S2,dem2-sed2,'color','k')    % updated bedrock profile
         xlim([0 S2.distance(end)])
         yl(i,1:2) = ylim;
         ylim([yl(1,1),yl(1,2)+20]);
