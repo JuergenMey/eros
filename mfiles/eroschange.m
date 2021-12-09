@@ -59,7 +59,7 @@ if isnan(t)
     t=1:length(Z);
 end
 
-[~,index] = sortrows({Z.date}.');
+[~,index] = sortrows({Z.datenum}.');
 Z = Z(index);
 
 if nargin == 1
