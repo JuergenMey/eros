@@ -1,3 +1,3 @@
-function T = erostable()
+function T = erostable(no)
 T = dir('*.txt');
-T = readtable(T.name);
+T = readtable(T(no).name);

@@ -50,8 +50,12 @@ switch variable
 end
 
 T = dir('*.ini');
+if length(T)>1
+    [~,index] = sortrows({T.datenum}.');
+    T = T(index);
+end
 Z = dir(['*.',filetype]);
-[t,~] = fread_timeVec(T.name,length(Z));
+[t,~] = fread_timeVec(T(1).name,length(Z));
 if isempty(t)
     t=1:length(Z);
 end

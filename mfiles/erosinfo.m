@@ -19,10 +19,7 @@ function [varargout] = erosinfo(variable)
 %
 %                  'topo'       Topographic elevation
 %                  'topo_std'   Topographic elevation
-%                  'sediment'   Sediment thickness
 %                  'water'      Water depth
-%                  'water_max'  Water depth
-%                  'q'          Water discharge
 %                  'q_in'       Water discharge
 %                  'q_out'      Water discharge
 %                  'qs_in'      Unit-sediment flux
@@ -32,7 +29,8 @@ function [varargout] = erosinfo(variable)
 %                  'slope'      Stream slope
 %                  'dv_p'       dv_p
 %                  'dv_h'       dv_h
-%
+% 
+%                  'time'       modelled time versus computation time 
 %                  'all'        show all variables
 %
 %
@@ -74,8 +72,8 @@ function [varargout] = erosinfo(variable)
 % Date: 4. June, 2020
 
 p = inputParser;
-expectedInput_variable = {'topo','water','water_max','q_in','q_out','q','qs','qs_in','qs_out','slope',...
-    'rain','dt','dv_p','dh_p','all'};
+expectedInput_variable = {'topo','water','q_in','q_out','qs_in','qs_out','slope',...
+    'rain','dt','dv_p','dh_p','all','time'};
 addRequired(p,'variable',@(x) any(validatestring(x,expectedInput_variable)));
 
 parse(p,variable);
@@ -96,7 +94,7 @@ switch variable
         iylabel = 'Flow orientation';
     case 'hum'
         iylabel = 'Water discharge on topography (m^3/s)';
-    case {'qs','qs_out','qs_in'}
+    case {'qs_out','qs_in'}
         iylabel = 'Sediment flux (m^3/s)';
     case 'slope'
         variable = 'slope_eff';
@@ -109,16 +107,18 @@ switch variable
         iylabel = 'dh_p';
     case 'all'
         allflag=1;
+    case 'time'
+        iylabel = 'Computation time (days)';
 end
 
 T = dir('*.txt');
-T = readtable(T.name);
+T = readtable(T(1).name);
 T(1,:)=[];
 time = T{:,1};
 Stat.time = time;
 
-
-if allflag ==1
+figure
+if allflag == 1
     cols = contains(T.Properties.VariableNames,'dt');
     Stat.dt = T{:,cols};
     subplot(3,3,1)
@@ -165,7 +165,7 @@ if allflag ==1
     plot(time,T{:,cols});
     xlabel('Time')
     ylabel('Sediment flux')
-    legend('qs\_in','qs\_out')
+    legend('qs_i_n','qs\_out')
     
     cols = contains(T.Properties.VariableNames,'rain');
     Stat.rain = T{:,cols};
@@ -189,6 +189,14 @@ if allflag ==1
     ylabel('dh\_p')
     
     varargout{1} = Stat;
+elseif strcmp(variable,'time')
+    H = dir('*.alt');
+    [~,index] = sortrows({H.datenum}.');
+    H = H(index);
+    datenum = extractfield(H,'datenum');
+    plot(1:length(H),datenum-datenum(1))
+    xlabel('Model time (yr)')
+    ylabel('Computational time (d)')
 else
     cols = strcmp(T.Properties.VariableNames,variable);
     varargout{1}=horzcat(time,T{:,cols});

@@ -121,6 +121,10 @@ end
 if isfield(LEM,'cs')
 fprintf(fileID, ['cs=Topo\\',LEM.dem.name,'.cs\n']);
 end
+if isfield(LEM,'climate')
+fprintf(fileID, ['climate=',LEM.climate,'\n']);
+end
+
 
 % INFLOW/RAINFALL CONDITIONS
 if isfield(LEM,'inflow')
@@ -131,14 +135,20 @@ fprintf(fileID, ['rainfall=',num2str(LEM.rainfall),':dir\n']);
 end
 fprintf(fileID, ['input_sediment_concentration=',num2str(LEM.initial_sediment_stock),'\n']);
 
-% Time
+% TIME
+try % some parameters that are available from eros 7.5.92 onwards
+fprintf(fileID, ['time:unit=',LEM.time_unit,'\n']);  
+fprintf(fileID, ['time_extension=',num2str(LEM.time_extension),'\n']);
+catch % in case we use an older eros version
+end
 fprintf(fileID, ['time:end=',num2str(LEM.end),':',LEM.end_option,'\n']);
-fprintf(fileID, ['time:draw=',num2str(LEM.draw),':',LEM.draw_option,':dir\n']);
-fprintf(fileID, ['time:step=',num2str(LEM.step),':dir:',LEM.step_option,'\n']);
+fprintf(fileID, ['time:draw=',num2str(LEM.draw),':',LEM.draw_option,'\n']);
+fprintf(fileID, ['time:step=',num2str(LEM.step),':',LEM.step_option,'\n']);
 fprintf(fileID, ['time:step:min=',num2str(LEM.stepmin),':max=',num2str(LEM.stepmax),'\n']);
 fprintf(fileID, ['erosion_multiply=',num2str(LEM.erosion_multiply),':dir\n']);
-fprintf(fileID, ['uplift_rate=',num2str(LEM.uplift_multiplier),':dir\n']);
+fprintf(fileID, ['uplift_rate=',num2str(LEM.uplift_multiplier),'\n']);
 
+% fprintf(fileID, ['time_extension=',num2str(LEM.time_extension),':dir\n']);
 
 
 
@@ -151,7 +161,6 @@ fprintf(fileID, ['write=',LEM.str_write,'\n']);
 fprintf(fileID, ['TU_coefficient=',num2str(LEM.TU_coefficient),'\n']);   % unknown parameter 
 fprintf(fileID, ['flow_inertia_coefficient=',num2str(LEM.inertia),'\n']);   % inertia in shallow water equation 
 fprintf(fileID, ['friction_model=',LEM.friction_model,'\n']);   % floodos mode 
-fprintf(fileID, ['continue=',num2str(LEM.continue_run),'\n']);   % continue from stage
 fclose(fileID);
 
 % write .bat file

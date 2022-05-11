@@ -2,7 +2,7 @@ function Q = erostimeseries(variable)
 
 
 p = inputParser;
-expectedInput_variable = {'topo','water','sediment','flux','qs',...
+expectedInput_variable = {'topo','water','sediment','flux','qs','qs/qw',...
     'discharge','downward','stress','hum','slope','capacity','stock'};
 addRequired(p,'variable',@(x) any(validatestring(x,expectedInput_variable)));
 parse(p,variable);
@@ -49,7 +49,8 @@ end
 T = dir('*.ini');
 Z = dir(['*.',filetype]);
 F = dir('*.flux');
-[t,~] = fread_timeVec(T.name,length(Z));
+t=[];
+% [t,~] = fread_timeVec(T.name,length(Z));
 if isempty(t)
     t=1:length(Z);
 end

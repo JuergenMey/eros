@@ -208,7 +208,7 @@ if strcmp(variable,'sprofile')
         plotdz(S2,dem2-sed2,'color','k')    % updated bedrock profile
         xlim([0 S2.distance(end)])
         yl(i,1:2) = ylim;
-        ylim([yl(1,1),yl(1,2)+20]);
+        ylim([yl(1,1),yl(i,2)+20]);
         title(['Time = ',num2str(i),''])
         xlabel('Distance (m)')
         ylabel('Elevation (m)');
@@ -304,15 +304,15 @@ elseif strcmp(variable,'profile')
     close(w)
 else
     
-    T = dir('*.ini');
+%     T = dir('*.ini');
     Z = dir(['*.',filetype]);
-    [t,~] = fread_timeVec(T.name,length(Z));
-    if isempty(t)
+%     [t,~] = fread_timeVec(T.name,length(Z));
+%     if isempty(t)
+%         t=1:length(Z);
+%     end
+%     if isnan(t)
         t=1:length(Z);
-    end
-    if isnan(t)
-        t=1:length(Z);
-    end
+%     end
     
     [~,index] = sortrows({Z.date}.');
     Z = Z(index);
@@ -333,7 +333,7 @@ else
                 h = grd2GRIDobj(H(i+1).name);
                 z = grd2GRIDobj(Z(i+1).name);
                 z.Z(z.Z==0)=NaN;
-                %imageschs(h,z,'colormap',colors,'caxis',[0,1],'colorbarylabel',iylabel);
+%                 imageschs(h,z,'colormap',colors,'caxis',[0,1000],'colorbarylabel',iylabel);
                 imageschs(h,z,'colormap',colors,'caxis',[nanmin(B(:)),nanmax(B(:))],'colorbarylabel',iylabel);
                 %set(gca,'ColorScale','log')
                 title(['Time = ',num2str(t(i)),''])
