@@ -159,6 +159,7 @@ if allflag == 1
     xlabel('Time')
     ylabel('Slope (%)')
     
+    try
     cols = contains(T.Properties.VariableNames,'qs');
     Stat.qs = T{:,cols};
     subplot(3,3,6)
@@ -166,6 +167,8 @@ if allflag == 1
     xlabel('Time')
     ylabel('Sediment flux')
     legend('qs_i_n','qs\_out')
+    catch
+    end
     
     cols = contains(T.Properties.VariableNames,'rain');
     Stat.rain = T{:,cols};
@@ -189,6 +192,8 @@ if allflag == 1
     ylabel('dh\_p')
     
     varargout{1} = Stat;
+    
+        
 elseif strcmp(variable,'time')
     H = dir('*.alt');
     [~,index] = sortrows({H.datenum}.');
