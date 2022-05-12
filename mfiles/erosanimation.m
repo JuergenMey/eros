@@ -183,8 +183,15 @@ if strcmp(variable,'sprofile')
     [~,index] = sortrows({H.datenum}.');
     H = H(index);
     W = W(index);
-    S = S(index);
     D = D(index);
+    try % in case there is no sediment involved 
+        S = S(index);
+        sed = grd2GRIDobj(S(1).name,dem);
+    catch 
+        sed = dem;
+        sed.Z = zeros(dem.size);
+    end
+    
     
     for i = 1:length(D)
         [z,~] = fopengrd(D(i).name);
@@ -192,14 +199,18 @@ if strcmp(variable,'sprofile')
         B(:,:,i) = z;
     end
     
-    sed = grd2GRIDobj(S(1).name,dem);
+    
     w = waitbar(1/length(H),['Collecting movie frames ... ']);
     for i=1:length(H)
         h=figure;
         subplot(2,1,1)
         water2 = grd2GRIDobj(W(i).name,dem);
         dem2 = grd2GRIDobj(H(i).name,dem);
-        sed2 = grd2GRIDobj(S(i).name,dem);
+        try % in case there is no sediment involved 
+            sed2 = grd2GRIDobj(S(i).name,dem);
+        catch
+            sed2 = sed;
+        end
         plotdz(S2,dem,'color',[0.9 0.9 0.9]);hold on % initial river profile
         plotdz(S2,dem-sed,'color',[0.7 0.7 0.7]) % initial bedrock profile
         plotdz(S2,dem2+water2,'color',[0 0.61 1]) % water surface
@@ -241,11 +252,18 @@ elseif strcmp(variable,'profile')
     S = dir('*.sed');
     D = dir('*.flux');
     
+    
     [~,index] = sortrows({H.date}.');
     H = H(index);
     W = W(index);
-    S = S(index);
     D = D(index);
+    try % in case there is no sediment involved 
+        S = S(index);
+        sed = grd2GRIDobj(S(1).name,dem);
+    catch 
+        sed = dem;
+        sed.Z = zeros(dem.size);
+    end
     
     for i = 1:length(D)
         [z,~] = fopengrd(D(i).name);
@@ -254,7 +272,7 @@ elseif strcmp(variable,'profile')
     end
     
     
-    sed = grd2GRIDobj(S(1).name,dem);
+   
     [d,z,x,y] = demprofile(dem);
     [~,sz0] = demprofile(sed,[],x,y);
     
@@ -264,7 +282,11 @@ elseif strcmp(variable,'profile')
         subplot(2,1,1)
         water2 = grd2GRIDobj(W(i).name,dem);
         dem2 = grd2GRIDobj(H(i).name,dem);
-        sed2 = grd2GRIDobj(S(i).name,dem);
+        try % in case there is no sediment involved 
+            sed2 = grd2GRIDobj(S(i).name,dem);
+        catch
+            sed2 = sed;
+        end
         [~,hz] = demprofile(dem2,[],x,y);
         [~,wz] = demprofile(water2,[],x,y);
         [~,sz] = demprofile(sed2,[],x,y);
