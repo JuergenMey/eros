@@ -8,6 +8,8 @@ clear
 dem=GRIDobj('./Topo/cop30DEM_utm32n_subset_carved.tif');
 dem.name = 'hochrhein_subset';
 
+climate = 'Topo\\floodwave.climate';
+
 % RAIN (sources (>0) and sinks (-1))
 rain = dem;
 rain.Z = zeros(dem.size);
@@ -25,6 +27,8 @@ rain.Z(end,1:end)=-1;
 
 LEM.dem = dem;
 LEM.rain = rain;
+LEM.climate = climate;
+
 
 GRIDobj2grd(dem,['./Topo/',dem.name,'.alt']);
 GRIDobj2grd(rain,['./Topo/',dem.name,'.rain']);
@@ -36,26 +40,26 @@ GRIDobj2grd(rain,['./Topo/',dem.name,'.rain']);
 
 LEM.experiment = 'template';                % Project name
 
-LEM.ErosPath = 'D:\\USER\\mey';    % Path to .exe
 LEM.outfolder = 'template';                 % folder to store results in
 
 
 LEM.rainfall = 1;                      % Sets the precipitation rate per unit surface when multiplied by the rainfall map
-LEM.inertia = 0;                            % refers to inertia term in shallow water equation
+LEM.inertia = '1:dir';                            % refers to inertia term in shallow water equation
 
+LEM.model = 'floodos';
 LEM.time_unit = 'year';
-LEM.begin = 0;          LEM.begin_option = 'time';                        % start time
+LEM.begin = 0;              LEM.begin_option = 'time';                        % start time
 LEM.end = 1/365.25;         LEM.end_option = 'time';                           % length of model run
-LEM.draw = 500;         LEM.draw_option = 'time';                           % output interval
-LEM.step = 1;           LEM.step_option = 'volume'; 
+LEM.draw = LEM.end/24/2;    LEM.draw_option = 'time';                           % output interval
+LEM.step = '10:dir';        LEM.step_option = 'volume'; 
 LEM.stepmin = 1;
-LEM.stepmax = 1;
+LEM.stepmax = '10e+3';
 LEM.initbegin = 1e+1;                                   % initialization time (-)
 LEM.initend = 1e+1;
 LEM.initstep = 2;
 
 LEM.TU_coefficient = '1';                 % sets the proportion of rain pixels that make up 1 TU
-LEM.flow_model = 'stationary:pow';
+LEM.flow_model = 'transient';
 LEM.erosion_multiply = 1;               % multiplying factor for erosion rates. Equivalent to consider an "erosion time" larger than the hydrodynamic time
 LEM.uplift_multiplier = 1;
 LEM.time_extension = 1;
