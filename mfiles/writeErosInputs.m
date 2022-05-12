@@ -131,10 +131,15 @@ if isfield(LEM,'inflow')
 fprintf(fileID, ['inflow=',num2str(LEM.inflow),':dir\n']);
 end
 if isfield(LEM,'rainfall')
-fprintf(fileID, ['rainfall=',num2str(LEM.rainfall),':dir\n']);
+fprintf(fileID, ['rainfall=',num2str(LEM.rainfall),'\n']);
 end
+try
 fprintf(fileID, ['input_sediment_concentration=',num2str(LEM.initial_sediment_stock),'\n']);
+catch
+end
 
+
+fprintf(fileID, ['model=',LEM.model,'\n']);  
 % TIME
 try % some parameters that are available from eros 7.5.92 onwards
 fprintf(fileID, ['time:unit=',LEM.time_unit,'\n']);  
@@ -145,7 +150,7 @@ fprintf(fileID, ['time:end=',num2str(LEM.end),':',LEM.end_option,'\n']);
 fprintf(fileID, ['time:draw=',num2str(LEM.draw),':',LEM.draw_option,'\n']);
 fprintf(fileID, ['time:step=',num2str(LEM.step),':',LEM.step_option,'\n']);
 fprintf(fileID, ['time:step:min=',num2str(LEM.stepmin),':max=',num2str(LEM.stepmax),'\n']);
-fprintf(fileID, ['erosion_multiply=',num2str(LEM.erosion_multiply),':dir\n']);
+fprintf(fileID, ['erosion_multiply=',num2str(LEM.erosion_multiply),'\n']);
 fprintf(fileID, ['uplift_rate=',num2str(LEM.uplift_multiplier),'\n']);
 
 % fprintf(fileID, ['time_extension=',num2str(LEM.time_extension),':dir\n']);
@@ -168,7 +173,7 @@ fileID = fopen([LEM.experiment,'.bat'],'w');
 fprintf(fileID, '@rem  Run Eros program with following arguments\n');
 fprintf(fileID, '@rem\n');
 fprintf(fileID, '@echo off\n');
-fprintf(fileID, ['@set EROS_PROG=',LEM.ErosPath,'\\bin\\',LEM.eros_version,'.exe\n']);
+fprintf(fileID, ['@set EROS_PROG=..\\bin\\',LEM.eros_version,'.exe\n']);
 fprintf(fileID, '@set COMMAND=%%EROS_PROG%% %%*\n');
 fprintf(fileID, '@echo on\n');
 fprintf(fileID, '@rem\n\n');
