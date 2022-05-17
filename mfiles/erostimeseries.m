@@ -10,7 +10,7 @@ parse(p,variable);
 switch variable
     case 'topo'
         filetype = 'alt';
-        iylabel = 'Elevation (m)';
+        iylabel = 'Mean elevation along profile (m)';
     case 'sediment'
         filetype = 'sed';
         iylabel = 'Mean sediment thickness along path (m)';
@@ -73,6 +73,10 @@ for i = 1:length(Z)
     z(z==0)=NaN;
     c = improfile(z,x,y);
     if strcmp(filetype,'sed')==1
+        Q(i) = nanmean(c);
+    elseif strcmp(filetype,'alt')==1
+        Q(i) = nanmean(c);
+    elseif strcmp(filetype,'water')==1
         Q(i) = nanmean(c);
     else
         Q(i) = nansum(c);
