@@ -58,9 +58,9 @@ LEM.initbegin = 1e+1;                                   % initialization time (-
 LEM.initend = 1e+1;
 LEM.initstep = 2;
 
-LEM.TU_coefficient = '1';                 % sets the proportion of rain pixels that make up 1 TU
+LEM.TU_coefficient = '1';                   % sets the proportion of rain pixels that make up 1 TU
 LEM.flow_model = 'transient';
-LEM.erosion_multiply = 1;               % multiplying factor for erosion rates. Equivalent to consider an "erosion time" larger than the hydrodynamic time
+LEM.erosion_multiply = 1;                   % multiplying factor for erosion rates. Equivalent to consider an "erosion time" larger than the hydrodynamic time
 LEM.uplift_multiplier = 1;
 LEM.time_extension = 1;
 

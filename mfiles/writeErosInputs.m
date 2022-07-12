@@ -138,8 +138,10 @@ fprintf(fileID, ['input_sediment_concentration=',num2str(LEM.initial_sediment_st
 catch
 end
 
-
+try
 fprintf(fileID, ['model=',LEM.model,'\n']);  
+catch
+end
 % TIME
 try % some parameters that are available from eros 7.5.92 onwards
 fprintf(fileID, ['time:unit=',LEM.time_unit,'\n']);  
