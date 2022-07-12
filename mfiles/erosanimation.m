@@ -253,7 +253,7 @@ elseif strcmp(variable,'profile')
     D = dir('*.flux');
     
     
-    [~,index] = sortrows({H.date}.');
+    [~,index] = sortrows({H.datenum}.');
     H = H(index);
     W = W(index);
     D = D(index);
