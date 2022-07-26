@@ -84,13 +84,18 @@ fprintf(fileID, ['lateral_deposition_model=',num2str(LEM.lateral_deposition_mode
 fprintf(fileID, ['lateral_erosion_coefficient_fluvial=',num2str(LEM.fluvial_lateral_erosion_coefficient),'\n']);
 fprintf(fileID, ['lateral_deposition_coefficient_fluvial=',num2str(LEM.fluvial_lateral_deposition_coefficient),'\n']);
 
+try
+fprintf(fileID, ['lateral_erosion_outbend=',num2str(LEM.outbend_erosion_coefficient),'\n']);
+fprintf(fileID, ['lateral_erosion_inbend=',num2str(LEM.inbend_erosion_coefficient),'\n']);
+catch
+end
 
 
 % BEDROCK
 fprintf(fileID, ['poisson_coefficient=',num2str(LEM.poisson_coefficient),'\n']);
 fprintf(fileID, ['diffusion_coefficient=',num2str(LEM.diffusion_coefficient),'\n']);
 fprintf(fileID, ['basement_grain=',num2str(LEM.basement_grain),'\n']);
-fprintf(fileID, ['basement_erodibility=',num2str(LEM.fluvial_basement_erodability),':dir\n']);
+fprintf(fileID, ['basement_erodibility=',num2str(LEM.fluvial_basement_erodability),'\n']);
 
 
 
@@ -155,8 +160,10 @@ fprintf(fileID, ['time:step:min=',num2str(LEM.stepmin),':max=',num2str(LEM.stepm
 fprintf(fileID, ['erosion_multiply=',num2str(LEM.erosion_multiply),'\n']);
 fprintf(fileID, ['uplift_rate=',num2str(LEM.uplift_multiplier),'\n']);
 
-% fprintf(fileID, ['time_extension=',num2str(LEM.time_extension),':dir\n']);
-
+try
+fprintf(fileID, ['Point=',LEM.survey_points,'\n']);
+catch
+end
 
 
 % Default management

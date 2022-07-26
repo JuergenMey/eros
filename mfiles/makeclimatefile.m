@@ -147,9 +147,9 @@ xlabel('Time (yr)')
 ylabel('Qs/Q')
 % ylim([0 1.2])
 
-saveas(h, 'D:\USER\mey\ProjectFolder\Topo\boundary_1Ma_GT','fig');
+saveas(h, 'D:\USER\mey\ProjectFolder\Topo\boundary_1Ma_GT_subset4','fig');
 
-fileID = fopen(['D:\USER\mey\ProjectFolder\Topo\boundary_1Ma_GT.climate'],'w');
+fileID = fopen(['D:\USER\mey\ProjectFolder\Topo\boundary_1Ma_GT_subset4.climate'],'w');
 fprintf(fileID, ['time    flow:relative   cs:absolute\n']);  
 for i = 1:length(x)
 fprintf(fileID, [num2str(x(i)),'    ',num2str(z(i)),'    ' num2str(y(i)/(z(i)*346)*erosion_multiplier),'\n']);

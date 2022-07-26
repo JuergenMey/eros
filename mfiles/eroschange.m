@@ -14,7 +14,7 @@ switch variable
     case 'topo'
         filetype = 'alt';
         iylabel = 'Elevation (m)';
-    case 'sediment'
+    case 'sediment' 
         filetype = 'sed';
         iylabel = 'Sediment thickness (m)';
     case 'water'

@@ -143,7 +143,7 @@ switch variable
     case 'flux'
         filetype = 'flux';
         iylabel = 'Water discharge (m^3/s)';
-        colors = 'flowcolor';
+        colors = 'invabyss';
     case 'downward'
         filetype = 'downward';
         iylabel = 'Mean settling velocity (m/s)';
@@ -352,6 +352,7 @@ else
             Z = Z(index);
             w = waitbar(1/length(H),['Collecting movie frames ... ']);
             for i = 1:length(H)-1
+                figure
                 h = grd2GRIDobj(H(i+1).name);
                 z = grd2GRIDobj(Z(i+1).name);
                 z.Z(z.Z==0)=NaN;

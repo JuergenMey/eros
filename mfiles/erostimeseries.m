@@ -72,11 +72,7 @@ for i = 1:length(Z)
     [z,~] = fopengrd(Z(i).name);
     z(z==0)=NaN;
     c = improfile(z,x,y);
-    if strcmp(filetype,'sed')==1
-        Q(i) = nanmean(c);
-    elseif strcmp(filetype,'alt')==1
-        Q(i) = nanmean(c);
-    elseif strcmp(filetype,'water')==1
+    if strcmp(filetype,'sed')==1 || strcmp(filetype,'water')==1 || strcmp(filetype,'alt')==1
         Q(i) = nanmean(c);
     else
         Q(i) = nansum(c);
