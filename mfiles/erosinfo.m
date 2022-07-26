@@ -73,7 +73,7 @@ function [varargout] = erosinfo(variable)
 
 p = inputParser;
 expectedInput_variable = {'topo','water','q_in','q_out','qs_in','qs_out','slope',...
-    'rain','dt','dv_p','dh_p','all','time'};
+    'rain','dt','dv_p','dh_p','all','time','cs_in','cs_out'};
 addRequired(p,'variable',@(x) any(validatestring(x,expectedInput_variable)));
 
 parse(p,variable);
@@ -94,7 +94,7 @@ switch variable
         iylabel = 'Flow orientation';
     case 'hum'
         iylabel = 'Water discharge on topography (m^3/s)';
-    case {'qs_out','qs_in'}
+    case {'qs_out','qs_in','cs_in','cs_out'}
         iylabel = 'Sediment flux (m^3/s)';
     case 'slope'
         variable = 'slope_eff';
@@ -112,9 +112,20 @@ switch variable
 end
 
 T = dir('*.txt');
-T = readtable(T(1).name);
-T(1,:)=[];
-time = T{:,1};
+[~,index] = sortrows({T.datenum}.');
+T = T(index);
+time = [];
+for i = 1:length(index)
+    Ta{i} = readtable(T(i).name);
+    try
+    time = vertcat(time,Ta{i}{:,1} + Ta{i-1}{end,1});
+    catch
+        time = Ta{i}{:,1};
+    end
+end
+T = vertcat(Ta{:});
+% T(1,:)=[];
+% time = T{:,1};
 Stat.time = time;
 
 figure
@@ -160,13 +171,13 @@ if allflag == 1
     ylabel('Slope (%)')
     
     try
-    cols = contains(T.Properties.VariableNames,'qs');
+    cols = contains(T.Properties.VariableNames,'qs')|contains(T.Properties.VariableNames,'cs');
     Stat.qs = T{:,cols};
     subplot(3,3,6)
     plot(time,T{:,cols});
     xlabel('Time')
     ylabel('Sediment flux')
-    legend('qs_i_n','qs\_out')
+    legend('cs\_in','cs\_out')
     catch
     end
     
@@ -200,8 +211,12 @@ elseif strcmp(variable,'time')
     H = H(index);
     datenum = extractfield(H,'datenum');
     plot(1:length(H),datenum-datenum(1))
-    xlabel('Model time (yr)')
+    M(:,1)=1:length(H);
+    M(:,2)=datenum-datenum(1);
+    xlabel('Model time (kyr)')
     ylabel('Computational time (d)')
+    
+     varargout{1} = M;
 else
     cols = strcmp(T.Properties.VariableNames,variable);
     varargout{1}=horzcat(time,T{:,cols});
