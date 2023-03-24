@@ -94,8 +94,10 @@ switch variable
         iylabel = 'Flow orientation';
     case 'hum'
         iylabel = 'Water discharge on topography (m^3/s)';
-    case {'qs_out','qs_in','cs_in','cs_out'}
+    case {'qs_out','qs_in'}
         iylabel = 'Sediment flux (m^3/s)';
+    case {'cs_in','cs_out'}
+        iylabel = 'Sediment concentration (qs/q)';
     case 'slope'
         variable = 'slope_eff';
         iylabel = 'Slope (%)';
@@ -128,12 +130,13 @@ T = vertcat(Ta{:});
 % time = T{:,1};
 Stat.time = time;
 
-figure
+% figure
 if allflag == 1
     cols = contains(T.Properties.VariableNames,'dt');
     Stat.dt = T{:,cols};
     subplot(3,3,1)
     plot(time,T{:,cols});
+    xlim([time(1),time(end)]);
     xlabel('Time')
     ylabel('dt')
     
@@ -141,6 +144,7 @@ if allflag == 1
     Stat.q = T{:,cols};
     subplot(3,3,2)
     plot(time,T{:,cols});
+    xlim([time(1),time(end)]);
     xlabel('Time')
     ylabel('Water flux (m^3s^-^1)')
     legend('q\_in','q\_out')
@@ -149,6 +153,7 @@ if allflag == 1
     Stat.topo = T{:,cols};
     subplot(3,3,3)
     plot(time,T{:,cols});
+    xlim([time(1),time(end)]);
     xlabel('Time')
     ylabel('Elevation (m)')
     legend('Mean','std')
@@ -159,6 +164,7 @@ if allflag == 1
     Stat.water = T{:,cols};
     subplot(3,3,4)
     plot(time,T{:,cols});
+    xlim([time(1),time(end)]);
     xlabel('Time')
     ylabel('Water depth (m)')
     legend('Mean','Max')
@@ -167,6 +173,7 @@ if allflag == 1
     Stat.slope = T{:,cols};
     subplot(3,3,5)
     plot(time,T{:,cols});
+    xlim([time(1),time(end)]);
     xlabel('Time')
     ylabel('Slope (%)')
     
@@ -175,9 +182,10 @@ if allflag == 1
     Stat.qs = T{:,cols};
     subplot(3,3,6)
     plot(time,T{:,cols});
+    xlim([time(1),time(end)]);
     xlabel('Time')
-    ylabel('Sediment flux')
-    legend('cs\_in','cs\_out')
+    ylabel('Sediment concentration, q_s/q')
+    legend('cs\_i_n','cs\_o_u_t')
     catch
     end
     
@@ -185,6 +193,7 @@ if allflag == 1
     Stat.rain = T{:,cols};
     subplot(3,3,7)
     plot(time,T{:,cols});
+    xlim([time(1),time(end)]);
     xlabel('Time')
     ylabel('Rain')
     
@@ -192,6 +201,7 @@ if allflag == 1
     Stat.dv_p = T{:,cols};
     subplot(3,3,8)
     plot(time,T{:,cols});
+    xlim([time(1),time(end)]);
     xlabel('Time')
     ylabel('dv\_p')
     
@@ -199,6 +209,7 @@ if allflag == 1
     Stat.dh_p = T{:,cols};
     subplot(3,3,9)
     plot(time,T{:,cols});
+    xlim([time(1),time(end)]);
     xlabel('Time')
     ylabel('dh\_p')
     
@@ -221,6 +232,7 @@ else
     cols = strcmp(T.Properties.VariableNames,variable);
     varargout{1}=horzcat(time,T{:,cols});
     plot(time,T{:,cols});
+    xlim([time(1),time(end)]);
     xlabel('Time')
     ylabel(iylabel)
     legend(T.Properties.VariableNames(cols))
