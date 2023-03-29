@@ -1,4 +1,3 @@
-
 function [F] = erosanimation(variable,varargin)
 % Visualize output of the EROS landscape evolution model as animations (LEM)
 %
@@ -12,8 +11,10 @@ function [F] = erosanimation(variable,varargin)
 %
 % SYNTAX
 %
-%   B = erosanimation(variable)
-%   B = erosanimation(variable,pn,pv,...)
+%   F = erosanimation(variable)
+%   F = erosanimation(variable,pn,pv,...)
+%   F = erosanimation('profile',LEM);
+%   F = erosanimation('sprofile',LEM);
 %
 %
 % DESCRIPTION
@@ -38,12 +39,20 @@ function [F] = erosanimation(variable,varargin)
 %                  'hum'        Water discharge on the topography
 %                  'rain'       Sources (>0) and sinks (-1) of water and sediment
 %
-%                  'profile'    custom profile, second argument needs to be a DEM (GRIDobj)
-%                  'sprofile'   stream long profile, second argument needs to be a DEM (GRIDobj)
+%                  'profile'    custom profile, second argument needs to be
+%                               a structure like the one created by eros.m
+%                  'sprofile'   stream long profile, second argument needs
+%                               to be a structure like the one created by
+%                               eros.m. 
+%                  LEM          Structure required only for 'profile' and
+%                               'sprofile'.
 %
 % INPUT (optional)
 %
 %   Parameter name/value pairs (pn,pv,...)
+%
+%   'flowmin'      Controls the initiation of streams in the STREAMobj 
+%                  (default: 100). Only works with 'sprofile'. 
 %
 %   'mode'         visualization mode (string) (default: 'movie2')
 %
@@ -52,9 +61,7 @@ function [F] = erosanimation(variable,varargin)
 %
 %   'viewdir'      view geometry specified as 2-element vector of azimuth
 %                  and elevation (default: [45,45])
-%                  only apllies to mode 'movie3'
-%
-%
+%                  only aplies to mode 'movie3'
 %
 % OUTPUT
 %
@@ -64,20 +71,21 @@ function [F] = erosanimation(variable,varargin)
 %
 %   Run the example that comes with the Eros download and:
 %
-%       1. make an 2d-animation of sediment thickness and use the returned
+%       1. make an 2d-animation of water discharge and use the returned
 %          frames to construct an animated .gif
+%           LEM = eros;
+%           F = erosanimation('flux');
+%           frames2gif(B,'flux.gif',0.1)
 %
-%           eros_template.m
-%           B = erosanimation('sediment');
-%           frames2gif(B,'sediment.gif',0.1)
+%       2. make an 3d-animation of topography with sediment overlay            
+%           LEM = eros;
+%           F = erosanmimation('sediment','mode','movie3');
+%           frames2gif(F,'sed3.gif',0.1)
 %
-%       2. plot the average sediment thickness versus time
-%
-%           B = erosanimation('sediment','mode','average');
-%
-%       3. make an 3d-animation of topography and return frames
-%
-%           B = erosanmimation('topo','mode','movie3');
+%       3. long-profile evolution
+%           LEM = eros;
+%           F = erosanmimation('sprofile',LEM,'flowmin',1000);
+%           frames2gif(F,'longprofile.gif,0.1)
 %
 % REFERENCES:
 %
@@ -94,6 +102,7 @@ function [F] = erosanimation(variable,varargin)
 %
 % Author: Juergen Mey (juemey[at]uni-potsdam.de)
 % Date: 28. May, 2020
+% Last update: 29. March 2023
 
 p = inputParser;
 expectedInput_variable = {'topo','water','sediment','flux','qs',...
@@ -221,7 +230,7 @@ if strcmp(variable,'sprofile')
         sed = dem;
         sed.Z = zeros(dem.size);
     end
-   
+    
     
     w = waitbar(1/length(H),['Collecting movie frames ... ']);
     for i=1:length(H)
@@ -337,9 +346,9 @@ elseif strcmp(variable,'profile')
         sed.Z = zeros(dem.size);
     end
     
-    [d,~,x,y] = demprofile(dem);            % distance, x and y values of the profile 
+    [d,~,x,y] = demprofile(dem);            % distance, x and y values of the profile
     [~,urate] = demprofile(uplift,[],x,y);  % uplift rates along the profile
-    close all       
+    close all
     colors = colormap(flipud(parula));
     if sum(cst(:,1))~=0
         color = interp1(linspace(min(cst(:,1)),max(cst(:,1)),length(colors)),colors,cst(:,1)); % map color to y values
@@ -360,7 +369,7 @@ elseif strcmp(variable,'profile')
         end
         [~,hz(:,i)] = demprofile(dem2,[],x,y);   % topography
         [~,wz] = demprofile(water2,[],x,y); % water surface
-        [~,sz] = demprofile(sed2,[],x,y);   % sediment thickness      
+        [~,sz] = demprofile(sed2,[],x,y);   % sediment thickness
         
         f = size(hz,2):-1:1;
         ff = ones(size(hz));
@@ -476,7 +485,7 @@ else
     qt = q(tid,:);
     cst = cs(tid,:);
     
-	switch mode
+    switch mode
         case 'movie2'
             H = dir('*.alt');
             Z = dir(['*.',filetype]);
@@ -491,11 +500,11 @@ else
                 z = grd2GRIDobj(Z(i).name);
                 z.Z(z.Z==0)=NaN;
                 try
-					imageschs(dem2,flux,'colormap','flowcolor','colorbarylabel','Water discharge (m^3/s)');
-				catch
-					imageschs(dem2,flux,'colormap','flowcolor','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
-				end                
-				title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
+                    imageschs(dem2,flux,'colormap','flowcolor','colorbarylabel','Water discharge (m^3/s)');
+                catch
+                    imageschs(dem2,flux,'colormap','flowcolor','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
+                end
+                title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
                 x0=10;
                 y0=10;
                 width=2200;
@@ -542,7 +551,7 @@ else
             
         case 'movie3'
             H = dir('*.alt');
-            W = dir('*.water');
+            W = dir(['*.',filetype]);
             [~,index] = sortrows({H.datenum}.');
             H = H(index);
             W = W(index);
