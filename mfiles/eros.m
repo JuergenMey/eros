@@ -1,4 +1,104 @@
 function [LEM] = eros(varargin)
+% Function to run the landscape evolution model EROS
+%
+%     The following function library is required, which can be downloaded
+%     from e.g. the MATLAB file exchange:
+%
+%     TopoToolbox - A MATLAB program for the analysis of digital elevation
+%               models. (https://github.com/wschwanghart/topotoolbox)
+%
+% Syntax
+%
+%     LEM = eros
+%     LEM = eros(dem)
+%     LEM = eros(dem,pn,pv,...)
+%
+% Description
+%
+%     EROS follows a particle based approach where elemental water units   
+%	  (precipitons) are routed over the topography.	On their path the 2d 
+%     shallow water equation is solved including both basal and lateral 
+%     erosion and deposition. It is also referred to as Xi-q model, with Xi
+%     being the deposition length parameter, and as such it accounts for 
+%     the transition between detachment-limited to transport-limited 
+%     behavior (see Davy et al., 2017). 
+%     
+%     If called without any input eros will run an example based on the
+%     Big Tujunga DEM that comes with TopoToolbox.
+%
+% Input
+%
+%     dem         digital elevation model (GRIDobj)
+%
+% Parameter name/value pairs
+%
+%     GRIDS
+%
+%     rain             number or GRIDobj. [m/yr/m^2]. Water inflow boundary 
+%                      condition, including precipitation AND stream inflow 
+%                      at the inlets. If a single number is passed it will 
+%                      be interpreted as precipitation that is uniformly 
+%                      distributed over the model domain. 
+%                      Discharge at inlet has to be provided in [m/yr/m^2].
+%                      i.e. m3/s => m/yr/yr^2:
+%                      m3/s*seconds_per_year/ninletcells/cellsize^2.   
+%     uplift           number (default: 0.002) or GRIDobj. [m/yr]. 
+%                      If a single number is passed it will be 
+%                      interpreted as spatially uniform uplift.                     
+%     cs               number (default: 0) or GRIDobj. Volumetric sediment 
+%                      concentration at the inlets (q/qs). 
+%     sediment         number (default: 2) or GRIDobj. [m]. Sediment 
+%                      thickness. A single value will be interpreted as a
+%                      uniform sediment thickness distribution.
+%     water            number (default: 0) or GRIDobj. [m] Initial water 
+%                      depth. Sometimes it is advisable to provide an
+%                      initial water depth distribution e.g. when there are
+%                      large lakes in the domain.
+%
+%     OTHER  
+%
+%     climate          n-by-3 element vector. Allows for using a timeseries
+%                      of water and sediment inflows. First row is time,
+%                      second row is relative discharge wrt the rain-file
+%                      and third row is the absolute sediment concentration
+%     
+%
+% Output
+%
+%     LEM         [struct] structure containing all inputs
+%
+%
+% Example 1: Geomorphic simulation over 10 kyrs using Big Tujunga 
+%            topography and default rain (1 m/yr), uplift (0.002 m/yr) and 
+%            sediment thickness (2 m).   
+%
+%     LEM = eros;
+%     cd LEM.outfolder
+%     frames2gif(erosanimation('flux'),flux.gif,0.1);
+%
+% Example 2: Simulation using a climate-file (i.e. inflow timeseries) 
+%     
+%     dem = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     A=zeros(11,3);
+%     A(:,1)=0:1000:10000;
+%     A(1:5,2)=ones(5,1)*1;
+%     A(6:11,2)=ones(6,1)*3;
+%     LEM = eros(dem,'climate',A)
+%     cd(LEM.outfolder)
+%     erosinfo('q_out');
+%   
+%
+% References
+%
+%     Davy, P., Croissant, T., & Lague, D. (2017). A precipiton method to 
+%     calculate river hydrodynamics, with applications to flood prediction, 
+%     landscape evolution models, and braiding instabilities. Journal of 
+%     geophysical research: earth surface, 122(8), 1491-1512.
+%
+% See also: erosanimation, erosinfo
+%
+% Author: Juergen Mey (juemey[at].uni-potsdam.de)
+% Date: 29. March 2023
 
 %############## DEFAULTS #################################
 % grids
@@ -7,26 +107,26 @@ default_rain = 1;                                                           % pr
 default_uplift = 0.002;                                                     % uplift rate (m/yr)
 default_sediment = 2;                                                       % sediment thickness (m)
 default_cs = 0;                                                             % inflow sediment concentration (volumetric)
-default_water = 0;
+default_water = 0;                                                          % initial water depth (m)
 
 % other
-default_climate = 0;
-default_experiment = 'run';
-default_model = 'eros';
-default_eros_version = 'eros8.0.131M';
-default_outfolder = 'out\\out';
-default_inertia = 0;
+default_climate = 0;                                                        % inflow timeseries
+default_experiment = 'run';                                                 % name of experiment
+default_model = 'eros';                                                     % model: eros or floodos
+default_eros_version = 'eros8.0.131M';                                      % model version
+default_outfolder = 'out\\out';                                             % output folder
+default_inertia = 0;                                                        % inertia of precipitons (!computation time)
 
 % time
-default_time_unit = 'year';
+default_time_unit = 'year';                                                 % time unit: year or seconds
 default_begin = 0;
-default_end = 1e+4;
-default_draw = 1e+3;
-default_step = 250;
+default_end = 1e+4;                                                     
+default_draw = 1e+3;                                                        % output interval
+default_step = 250;                                                         % step
 default_stepmin = 0.1e1;
 default_stepmax = 1e4;
 default_begin_option = 'time';
-default_end_option = 'time'; 
+default_end_option = 'time';
 default_draw_option = 'time';
 default_step_option = 'volume:adapt';
 default_TU = 'TU:surface=rain:coefficient=0.001';
@@ -35,25 +135,25 @@ default_erosion_multiplier_increment = '3:log10';
 default_erosion_multiplier_op = '*';
 default_erosion_multiplier_min = 1000;                                      % smallest erosion_multiplier during calculation
 default_erosion_multiplier_max = 1000';                                     % largest erosion_multiplier during calculation;
-default_erosion_multiplier_default_min = 10000;                             % minimum number of defaults that triggers a time step increase 
+default_erosion_multiplier_default_min = 10000;                             % minimum number of defaults that triggers a time step increase
 default_erosion_multiplier_default_max = 20000;                             % maximum number of defaults that triggers a time step decrease
 default_time_extension = 2e+3;
 
 % erosion/deposition
 default_erosion_model = 'MPM';                                              % (stream_power, shear_stress, shear_mpm)
 default_deposition_model = 'constant';                                      % need to know whether there are other options!
-default_stress_model = 'rgqs';
+default_stress_model = 'rgqs';                                              % stress calculation: rgqs or rghs
 default_limiter_dh = 0.1;                                                   % define how excessive must be the topography variations to trigger defaults
-default_limiter_mode = 'unclip';                                            % determine whether triggering of defaults changes topography or not  
+default_limiter_mode = 'unclip';                                            % determine whether triggering of defaults changes topography or not
 default_fluvial_stress_exponent = 1.5;                                      % exponent in sediment flux eq. (MPM): qs = E(tau-tau_c)^a
 default_fluvial_sediment_erodability = 2.6e-8;                              % [kg-1.5 m-3.5 s-2] E in MPM equation
 default_fluvial_sediment_threshold = 0.05;                                  % [Pa] critical shear stress (tau_c) in MPM equation
 default_deposition_length = 60;                                             % [m] xi in vertical erosion term: edot = qs/xi
-default_fluvial_lateral_erosion_coefficient = 1e-2;                         % dimensionless coefficient (Eq. 17 in Davy, Croissant, Lague (2017))
-default_fluvial_lateral_deposition_coefficient = 1e-2;
-default_lateral_erosion_model = 1;
+default_fluvial_lateral_erosion_coefficient = 1e-2;                         % dimensionless coefficient (Eq. 17 in Davy et al., (2017))
+default_fluvial_lateral_deposition_coefficient = 1e-2;                      % dimensionless coefficient (Eq. 18 in Davy et al., (2017))
+default_lateral_erosion_model = 1;                                          % 0 or 1: constant/0: prop. to bed erosion; bedslope/1(default): prop. to bed erosion by bank slope
 default_lateral_deposition_model = 'constant';
-default_fluvial_basement_erodability = 0.01;
+default_fluvial_basement_erodability = 0.01;                                % bedrock erodibility relative to the sediment erodibility
 default_fluvial_basement_threshold = 0.5;
 default_outbend_erosion_coefficient = 1.000000;
 default_inbend_erosion_coefficient = 1.00000;
@@ -65,11 +165,11 @@ default_basement_grain = 0.025;
 % flow model
 default_flow_model = 'stationary:pow';
 default_friction_model = 'manning';
-default_friction_coefficient = 0.025;        
+default_friction_coefficient = 0.025;
 default_flow_boundary = 'free';
 
 % outputs
-% options: 
+% options:
 % stress, waters, discharge, downward, slope, qs, capacity, sediment, precipiton_flux, stock
 default_str_write = 'water:qs:precipiton_flux:sed';
 
@@ -92,14 +192,14 @@ p = inputParser;
 
 % grids
 addOptional(p,'dem',default_dem,@(x)isa(x,'GRIDobj'))
-addParameter(p,'rain',default_rain,@(x)isa(x,'GRIDobj') || @isnumeric)
-addParameter(p,'uplift',default_uplift,@(x)isa(x,'GRIDobj') || @isnumeric)
-addParameter(p,'sed',default_sediment,@(x)isa(x,'GRIDobj') || @isnumeric)
-addParameter(p,'cs',default_cs,@(x)isa(x,'GRIDobj') || @isnumeric)
-addParameter(p,'water',default_water,@(x)isa(x,'GRIDobj') || @isnumeric)
+addParameter(p,'rain',default_rain,@(x)isa(x,'GRIDobj') || isnumeric(x))
+addParameter(p,'uplift',default_uplift,@(x)isa(x,'GRIDobj') || isnumeric(x))
+addParameter(p,'sediment',default_sediment,@(x)isa(x,'GRIDobj') || isnumeric(x))
+addParameter(p,'cs',default_cs,@(x)isa(x,'GRIDobj') || isnumeric(x))
+addParameter(p,'water',default_water,@(x)isa(x,'GRIDobj') || isnumeric(x))
 
 % other
-addParameter(p,'climate',default_climate);%,@(x) any(validateattributes(x,{'numeric'},{'ncols',3})))
+addParameter(p,'climate',default_climate,@(x) isnumeric(x) && size(x,2) == 3)
 addParameter(p,'experiment',default_experiment,@ischar)
 addParameter(p,'model',default_model,@ischar)
 addParameter(p,'eros_version',default_eros_version,@ischar)
@@ -166,10 +266,10 @@ if isnumeric(LEM.rain)
     rain.Z(:,end) = -1;
     LEM.rain = rain;
 end
-if isnumeric(LEM.sed)
+if isnumeric(LEM.sediment)
     sed = LEM.dem;
-    sed.Z = ones(sed.size)*p.Results.sed;
-    LEM.sed = sed;
+    sed.Z = ones(sed.size)*p.Results.sediment;
+    LEM.sediment = sed;
 end
 if isnumeric(LEM.uplift)
     uplift = LEM.dem;
@@ -193,18 +293,20 @@ if ~(isfolder('Topo'))
 end
 GRIDobj2grd(LEM.dem,['./Topo/',LEM.dem.name,'.alt']);
 GRIDobj2grd(LEM.rain,['./Topo/',LEM.dem.name,'.rain']);
-GRIDobj2grd(LEM.sed,['./Topo/',LEM.dem.name,'.sed']);
+GRIDobj2grd(LEM.sediment,['./Topo/',LEM.dem.name,'.sed']);
 GRIDobj2grd(LEM.uplift,['./Topo/',LEM.dem.name,'.uplift']);
 GRIDobj2grd(LEM.rain,['./Topo/',LEM.dem.name,'.rain']);
 GRIDobj2grd(LEM.water,['./Topo/',LEM.dem.name,'.water']);
 
 % climate
-fileID = fopen(['.\Topo\',LEM.experiment,'.climate'],'w');
-fprintf(fileID, ['time    flow:relative   cs:absolute\n']);  
-for i = 1:size(LEM.climate,1)
-fprintf(fileID, [num2str(LEM.climate(i,1)),'    ',num2str(LEM.climate(i,2)),'    ' num2str(LEM.climate(i,3)),'\n']);
+if sum(LEM.climate(:)) ~= 0
+    fileID = fopen(['.\Topo\',LEM.experiment,'.climate'],'w');
+    fprintf(fileID, 'time    flow:relative   cs:absolute\n');
+    for i = 1:size(LEM.climate,1)
+        fprintf(fileID, [num2str(LEM.climate(i,1)),'    ',num2str(LEM.climate(i,2)),'    ' num2str(LEM.climate(i,3)),'\n']);
+    end
+    fclose(fileID);
 end
-fclose(fileID);
 
 % make sure nothing gets overwritten
 [~,~,Status]=mkdir(LEM.outfolder);
@@ -215,15 +317,15 @@ while isempty(Status)==0
     i=i+1;
 end
 if i>1
-LEM.outfolder = outpath;
+    LEM.outfolder = outpath;
 end
 
 % write input file (.arg)
 fileID = fopen([LEM.experiment,'.arg'],'w');
-fprintf(fileID, ['model=',LEM.model,'\n']); 
-fprintf(fileID, ['erosion_model=',LEM.erosion_model,'\n']); 
+fprintf(fileID, ['model=',LEM.model,'\n']);
+fprintf(fileID, ['erosion_model=',LEM.erosion_model,'\n']);
 fprintf(fileID, ['deposition_model=',LEM.deposition_model,'\n']);
-fprintf(fileID, ['deposition_length_fluvial=',num2str(LEM.deposition_length),'\n']); 
+fprintf(fileID, ['deposition_length_fluvial=',num2str(LEM.deposition_length),'\n']);
 fprintf(fileID, ['sediment_grain=',num2str(LEM.sediment_grain),'\n']);
 fprintf(fileID, ['lateral_erosion_model=',num2str(LEM.lateral_erosion_model),'\n']);
 fprintf(fileID, ['lateral_deposition_model=',num2str(LEM.lateral_deposition_model),'\n']);
@@ -249,11 +351,11 @@ fprintf(fileID, ['sed=Topo\\',LEM.dem.name,'.sed\n']);
 fprintf(fileID, ['uplift=Topo\\',LEM.dem.name,'.uplift\n']);
 fprintf(fileID, ['cs=Topo\\',LEM.dem.name,'.cs\n']);
 if sum(LEM.climate(:)) ~= 0
-fprintf(fileID, ['climate=Topo\\',LEM.experiment,'.climate\n']);
+    fprintf(fileID, ['climate=Topo\\',LEM.experiment,'.climate\n']);
 end
 
 % time
-fprintf(fileID, ['time:unit=',LEM.time_unit,'\n']);  
+fprintf(fileID, ['time:unit=',LEM.time_unit,'\n']);
 fprintf(fileID, ['time_extension=',num2str(LEM.time_extension),'\n']);
 fprintf(fileID, ['time:end=',num2str(LEM.end),':',LEM.end_option,'\n']);
 fprintf(fileID, ['time:draw=',num2str(LEM.draw),':',LEM.draw_option,'\n']);
@@ -269,14 +371,17 @@ fprintf(fileID, ['erosion_multiplier_default_max=',num2str(LEM.erosion_multiplie
 fprintf(fileID, ['limiter_dh=',num2str(LEM.limiter_dh),'\n']);
 fprintf(fileID, ['limiter_mode=',num2str(LEM.limiter_mode),'\n']);
 fprintf(fileID, ['write=',LEM.str_write,'\n']);
-fprintf(fileID, [LEM.TU,'\n']);   
-fprintf(fileID, ['flow_inertia_coefficient=',num2str(LEM.inertia),'\n']);   % inertia in shallow water equation 
-fprintf(fileID, ['friction_model=',LEM.friction_model,'\n']);   % floodos mode 
+fprintf(fileID, [LEM.TU,'\n']);
+fprintf(fileID, ['flow_inertia_coefficient=',num2str(LEM.inertia),'\n']);   % inertia in shallow water equation
+fprintf(fileID, ['friction_model=',LEM.friction_model,'\n']);   % floodos mode
 fclose(fileID);
 
 % save inputs to outfolder
 copyfile([LEM.experiment,'.arg'],LEM.outfolder);
 save([LEM.outfolder,'/LEM.mat'],'LEM');
+if sum(LEM.climate(:)) ~= 0
+    copyfile(['.\Topo\',LEM.experiment,'.climate'],LEM.outfolder);
+end
 
 % write start file
 fileID = fopen([LEM.experiment,'.bat'],'w');
