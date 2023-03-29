@@ -100,12 +100,13 @@ expectedInput_variable = {'topo','water','sediment','flux','qs',...
     'discharge','downward','stress','hum','slope','capacity','stock','sprofile','profile'};
 addRequired(p,'variable',@(x) any(validatestring(x,expectedInput_variable)));
 if strcmp(variable,'sprofile') || strcmp(variable,'profile')
-    addRequired(p,'dem',@(x)isa(x,'GRIDobj'));
+    addRequired(p,'LEM',@isstruct);
     default_flowmin = 100;
     addParameter(p,'flowmin',default_flowmin,@isnumeric);
     parse(p,variable,varargin{:});
-    dem = p.Results.dem;
+    dem = p.Results.LEM.dem;
     flowmin = p.Results.flowmin;
+    uplift = p.Results.LEM.uplift;
 else
     default_mode = 'movie2';
     expectedInput_mode = {'movie2','movie3'};
@@ -171,10 +172,39 @@ switch variable
 end
 
 if strcmp(variable,'sprofile')
+    
+    % time vector
+    T = dir('*.txt');
+    [~,index] = sortrows({T.datenum}.');
+    T = T(index);
+    time = [];
+    for i = 1:length(index)
+        Ta{i} = readtable(T(i).name);
+        try
+            time = vertcat(time,Ta{i}{:,1} + Ta{i-1}{end,1}); % this is for the case when a model was continued and more than one .txt file exists
+        catch
+            time = Ta{i}{:,1};
+        end
+    end
+    T = vertcat(Ta{:});
+    
+    % boundary conditions
+    cols = contains(T.Properties.VariableNames,'q_');
+    q = T{:,cols};
+    cols = contains(T.Properties.VariableNames,'qs')|contains(T.Properties.VariableNames,'cs');
+    cs = T{:,cols};
+    
+    % output times
+    tid = ~strcmp(T{:,end},'-');
+    t = time(tid);
+    qt = q(tid,:);
+    cst = cs(tid,:);
+    
     FD = FLOWobj(dem,'preprocess','c');
     S = STREAMobj(FD,flowacc(FD)>flowmin);
+    h =figure;
     S2 = modify(S,'interactive','reachselect');
-    marker = round(linspace(1,length(S2.distance),10));
+    close(h)
     H = dir('*.alt');
     W = dir('*.water');
     S = dir('*.sed');
@@ -184,29 +214,22 @@ if strcmp(variable,'sprofile')
     H = H(index);
     W = W(index);
     D = D(index);
-    try % in case there is no sediment involved 
+    try % in case there is no sediment involved
         S = S(index);
         sed = grd2GRIDobj(S(1).name,dem);
-    catch 
+    catch
         sed = dem;
         sed.Z = zeros(dem.size);
     end
-    
-    
-    for i = 1:length(D)
-        [z,~] = fopengrd(D(i).name);
-        z(z==0)=NaN;
-        B(:,:,i) = z;
-    end
-    
+   
     
     w = waitbar(1/length(H),['Collecting movie frames ... ']);
     for i=1:length(H)
-        h=figure;
-        subplot(2,1,1)
+        figure;
+        subplot(2,2,[1 2])
         water2 = grd2GRIDobj(W(i).name,dem);
         dem2 = grd2GRIDobj(H(i).name,dem);
-        try % in case there is no sediment involved 
+        try % in case there is no sediment involved
             sed2 = grd2GRIDobj(S(i).name,dem);
         catch
             sed2 = sed;
@@ -220,37 +243,82 @@ if strcmp(variable,'sprofile')
         xlim([0 S2.distance(end)])
         yl(i,1:2) = ylim;
         ylim([yl(1,1),yl(i,2)+20]);
-        title(['Time = ',num2str(i),''])
+        title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
         xlabel('Distance (m)')
         ylabel('Elevation (m)');
         legend({'Initial topo','Initial bedrock','Water','Sediment','Bedrock'},'Location','northwest')
         legend('boxoff')
-        
-        
-        subplot(2,1,2)
-        flux = grd2GRIDobj(D(i).name,dem);
-        flux.Z(flux.Z==0)=NaN;
-        try
-            imageschs(dem2,flux,'colormap','flowcolor','colorbarylabel','Water discharge (m^3/s)');
-        catch
-            imageschs(dem2,flux,'colormap','flowcolor','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
-        end
-        hold on;
-        plot(S2,'k--')
-%         scatter(S2.x(marker),S2.y(marker),'k')
-        text(S2.x(marker),S2.y(marker),num2str(round(S2.distance(marker)/1000)),'FontWeight','bold')
         x0=10;
         y0=10;
         width=2200;
-        height=1900/2;
+        height=1900;
         set(gcf,'position',[x0,y0,width,height])
         set(gcf,'Visible','off')
+        
+        subplot(2,2,3)
+        plot(time,q(:,1));
+        hold on
+        plot(t(i),qt(i,1),'o',...
+            'LineWidth',2,...
+            'MarkerSize',10,...
+            'MarkerEdgeColor','k',...
+            'MarkerFaceColor',[0 0.45 0.74])
+        xlabel('Time')
+        ylabel('Water flux (m^3s^-^1)')
+        xlim([0 max(time)])
+        legend('q\_in')
+        
+        subplot(2,2,4)
+        plot(time,cs);
+        hold on
+        plot(t(i),cst(i,1),'o',...
+            'LineWidth',2,...
+            'MarkerSize',10,...
+            'MarkerEdgeColor','k',...
+            'MarkerFaceColor',[0 0.45 0.74])
+        hold on
+        plot(t(i),cst(i,2),'o',...
+            'LineWidth',2,...
+            'MarkerSize',10,...
+            'MarkerEdgeColor','k',...
+            'MarkerFaceColor',[0.85 0.33 0.1])
+        xlabel('Time')
+        ylabel('Sediment concentration, q_s/q')
+        xlim([0 max(time)])
+        legend('cs\_in','cs\_out')
         F(i) = getframe(gcf);
         close all
         waitbar(i/length(H))
     end
     close(w)
 elseif strcmp(variable,'profile')
+    
+    % time vector
+    T = dir('*.txt');
+    [~,index] = sortrows({T.datenum}.');
+    T = T(index);
+    time = [];
+    for i = 1:length(index)
+        Ta{i} = readtable(T(i).name);
+        try
+            time = vertcat(time,Ta{i}{:,1} + Ta{i-1}{end,1}); % this is for the case when a model was continued and more than 1 .txt file exists
+        catch
+            time = Ta{i}{:,1};
+        end
+    end
+    T = vertcat(Ta{:});
+    
+    % boundary conditions
+    cols = contains(T.Properties.VariableNames,'q_');
+    q = T{:,cols};
+    cols = contains(T.Properties.VariableNames,'qs')|contains(T.Properties.VariableNames,'cs');
+    cs = T{:,cols};
+    
+    % output times
+    tid = ~strcmp(T{:,end},'-');
+    t = time(tid);
+    qt = q(tid,:);
+    cst = cs(tid,:);
     H = dir('*.alt');
     W = dir('*.water');
     S = dir('*.sed');
@@ -261,115 +329,211 @@ elseif strcmp(variable,'profile')
     H = H(index);
     W = W(index);
     D = D(index);
-    try % in case there is no sediment involved 
+    try % in case there is no sediment involved
         S = S(index);
         sed = grd2GRIDobj(S(1).name,dem);
-    catch 
+    catch
         sed = dem;
         sed.Z = zeros(dem.size);
     end
     
-    for i = 1:length(D)
-        [z,~] = fopengrd(D(i).name);
-        z(z==0)=NaN;
-        B(:,:,i) = z;
+    [d,~,x,y] = demprofile(dem);            % distance, x and y values of the profile 
+    [~,urate] = demprofile(uplift,[],x,y);  % uplift rates along the profile
+    close all       
+    colors = colormap(flipud(parula));
+    if sum(cst(:,1))~=0
+        color = interp1(linspace(min(cst(:,1)),max(cst(:,1)),length(colors)),colors,cst(:,1)); % map color to y values
+    else
+        color = interp1(linspace(min(cst(:,2)),max(cst(:,2)),length(colors)),colors,cst(:,2)); % map color to y values
     end
-    
-    
-   
-    [d,z,x,y] = demprofile(dem);
-    [~,sz0] = demprofile(sed,[],x,y);
-    
+    duration = length(H);
     w = waitbar(1/length(H),['Collecting movie frames ... ']);
-    for i=1:length(H)
-        h=figure;
-        subplot(2,1,1)
+    for i=1:duration
+        figure;
+        subplot(3,3,[5 6 8 9])
         water2 = grd2GRIDobj(W(i).name,dem);
         dem2 = grd2GRIDobj(H(i).name,dem);
-        try % in case there is no sediment involved 
+        try % in case there is no sediment involved
             sed2 = grd2GRIDobj(S(i).name,dem);
         catch
             sed2 = sed;
         end
-        [~,hz] = demprofile(dem2,[],x,y);
-        [~,wz] = demprofile(water2,[],x,y);
-        [~,sz] = demprofile(sed2,[],x,y);
+        [~,hz(:,i)] = demprofile(dem2,[],x,y);   % topography
+        [~,wz] = demprofile(water2,[],x,y); % water surface
+        [~,sz] = demprofile(sed2,[],x,y);   % sediment thickness      
         
-        plot(d,z,'color',[0.9 0.9 0.9]);hold on
-        plot(d,z-sz0,'color',[0.7 0.7 0.7])
-        plot(d,hz+wz,'color',[0 0.61 1])
-        
-        plot(d,hz,'color',[1 0.5 0.1]);hold on
-        plot(d,hz-sz,'color','k')
+        f = size(hz,2):-1:1;
+        ff = ones(size(hz));
+        ufac = (f-1.*ff).*1e+3;
+        plot(d,hz(:,i)+wz,'color',[0 0.61 1],'LineWidth',1); hold on       % water surface
+        if i>=2
+            id=hz(:,1:i)+urate.*ufac(:,1:i)>hz(:,i)+urate.*ufac(:,i);
+            hz(id)=NaN;
+            colororder(color(1:i,:))
+            plot(d,hz+urate.*ufac,'LineWidth',1);hold on
+            plot(d,hz(:,1)+urate.*ufac(:,1),'color',[0.5 0.5 0.5],'LineWidth',1);hold on % first sediment layer
+        end
+        plot(d,hz(:,end)-sz,'color','k','LineWidth',1)               % bedrock surface
         xlim([0 d(end)])
-        yl(i,1:2) = ylim;
-        ylim([yl(1,1),yl(1,2)+20]);
-        title(['Time = ',num2str(i),''])
+        ylim([min(hz(:,end)-sz) max(hz(:,end))])
+        title([num2str(i),' kyr'])
         xlabel('Distance (m)')
         ylabel('Elevation (m)');
         
+        subplot(3,3,[4])
+        plot(time,q(:,1),'color',[0 0.61 1]);
+        hold on
+        plot(t(i),qt(i,1),'o',...
+            'LineWidth',2,...
+            'MarkerSize',10,...
+            'MarkerEdgeColor','k',...
+            'MarkerFaceColor',[0 0.61 1])
+        xlabel('Time (yr)')
+        ylabel('Water flux (m^3s^-^1)')
+        legend('q\_in','Location','southwest')
+        xlim([0 max(time)])
+        legend('boxoff');
         
-        subplot(2,1,2)
+        subplot(3,3,[7])
+        h=plot(t,cst(:,1));
+        cd1 = uint8(color'*255); % need a 4xN uint8 array
+        cd1(4,:) = 255; % last column is transparency
+        hold on
+        plot(time,cs(:,2),'Color',[0.85 0.33 0.1]);
+        plot(t(i),cst(i,1),'o',...
+            'LineWidth',2,...
+            'MarkerSize',10,...
+            'MarkerEdgeColor','k',...
+            'MarkerFaceColor',color(i,:))
+        plot(t(i),cst(i,2),'o',...
+            'LineWidth',2,...
+            'MarkerSize',10,...
+            'MarkerEdgeColor','k',...
+            'MarkerFaceColor',[0.85 0.33 0.1])
+        xlabel('Time (yr)')
+        ylabel('Sediment concentration, q_s/q')
+        legend('cs\_in','cs\_out')
+        legend('boxoff')
+        xlim([0 max(time)])
+        subplot(3,3,1:3)
         flux = grd2GRIDobj(D(i).name,dem);
         flux.Z(flux.Z==0)=NaN;
-        imageschs(dem2,flux,'colormap','flowcolor','caxis',[nanmin(B(:)),nanmax(B(:))],'colorbarylabel','Water discharge (m^3/s)');
+        try
+            imageschs(dem2,flux,'colormap','invabyss','colorbarylabel','Water discharge (m^3/s)');
+        catch
+            imageschs(dem2,flux,'colormap','invabyss','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
+        end
         hold on;
-        plot(x,y,'k--')
-        text(x(1)+10,y(1)+10,'left');
-        text(x(end)+10,y(end)+10,'right');
+        plot(x,y,'k')
         x0=10;
         y0=10;
         width=2200;
         height=1900/2;
         set(gcf,'position',[x0,y0,width,height])
+        set(h.Edge,'ColorBinding','interpolated','ColorData',cd1)
         set(gcf,'Visible','off')
         F(i) = getframe(gcf);
         close all
-        waitbar(i/length(H))
+        waitbar(i/duration)
     end
     close(w)
 else
+    % time vector
+    T = dir('*.txt');
+    [~,index] = sortrows({T.datenum}.');
+    T = T(index);
+    time = [];
+    for i = 1:length(index)
+        Ta{i} = readtable(T(i).name);
+        try
+            time = vertcat(time,Ta{i}{:,1} + Ta{i-1}{end,1}); % this is for the case when a model was continued and more than 1 .txt file exists
+        catch
+            time = Ta{i}{:,1};
+        end
+    end
+    T = vertcat(Ta{:});
     
-%     T = dir('*.ini');
+    % boundary conditions
+    cols = contains(T.Properties.VariableNames,'q_');
+    q = T{:,cols};
+    cols = contains(T.Properties.VariableNames,'qs')|contains(T.Properties.VariableNames,'cs');
+    cs = T{:,cols};
+    
+    % variable
     Z = dir(['*.',filetype]);
-%     [t,~] = fread_timeVec(T.name,length(Z));
-%     if isempty(t)
-%         t=1:length(Z);
-%     end
-%     if isnan(t)
-        t=1:length(Z);
-%     end
-    
-    [~,index] = sortrows({Z.date}.');
+    t=1:length(Z);
+    [~,index] = sortrows({Z.datenum}.');
     Z = Z(index);
     for i = 1:length(Z)
         [z,~] = fopengrd(Z(i).name);
         z(z==0)=NaN;
         B(:,:,i) = z;
     end
-    switch mode
+    
+    % output times
+    tid = ~strcmp(T{:,end},'-');
+    t = time(tid);
+    qt = q(tid,:);
+    cst = cs(tid,:);
+    
+	switch mode
         case 'movie2'
             H = dir('*.alt');
             Z = dir(['*.',filetype]);
-            [~,index] = sortrows({H.date}.');
+            [~,index] = sortrows({H.datenum}.');
             H = H(index);
             Z = Z(index);
             w = waitbar(1/length(H),['Collecting movie frames ... ']);
-            for i = 1:length(H)-1
+            for i = 1:length(H)
                 figure
-                h = grd2GRIDobj(H(i+1).name);
-                z = grd2GRIDobj(Z(i+1).name);
+                subplot(2,2,[1 2])
+                h = grd2GRIDobj(H(i).name);
+                z = grd2GRIDobj(Z(i).name);
                 z.Z(z.Z==0)=NaN;
-%                 imageschs(h,z,'colormap',colors,'caxis',[0,1000],'colorbarylabel',iylabel);
-                imageschs(h,z,'colormap',colors,'colorbarylabel',iylabel);
-                %set(gca,'ColorScale','log')
-                title(['Time = ',num2str(t(i)),''])
+                try
+					imageschs(dem2,flux,'colormap','flowcolor','colorbarylabel','Water discharge (m^3/s)');
+				catch
+					imageschs(dem2,flux,'colormap','flowcolor','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
+				end                
+				title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
                 x0=10;
                 y0=10;
                 width=2200;
                 height=1900;
                 set(gcf,'position',[x0,y0,width,height])
                 set(gcf,'Visible','off')
+                
+                subplot(2,2,3)
+                plot(time,q(:,1));
+                hold on
+                plot(t(i),qt(i,1),'o',...
+                    'LineWidth',2,...
+                    'MarkerSize',10,...
+                    'MarkerEdgeColor','k',...
+                    'MarkerFaceColor',[0 0.45 0.74])
+                xlabel('Time')
+                ylabel('Water flux (m^3s^-^1)')
+                legend('q\_in')
+                
+                if ~isempty(cs)
+                    subplot(2,2,4)
+                    plot(time,cs);
+                    hold on
+                    plot(t(i),cst(i,1),'o',...
+                        'LineWidth',2,...
+                        'MarkerSize',10,...
+                        'MarkerEdgeColor','k',...
+                        'MarkerFaceColor',[0 0.45 0.74])
+                    hold on
+                    plot(t(i),cst(i,2),'o',...
+                        'LineWidth',2,...
+                        'MarkerSize',10,...
+                        'MarkerEdgeColor','k',...
+                        'MarkerFaceColor',[0.85 0.33 0.1])
+                    xlabel('Time')
+                    ylabel('Sediment concentration, q_s/q')
+                    legend('cs\_in','cs\_out')
+                end
                 F(i) = getframe(gcf);
                 close all
                 waitbar(i/length(H))
@@ -378,20 +542,15 @@ else
             
         case 'movie3'
             H = dir('*.alt');
-            [~,index] = sortrows({H.date}.');
+            W = dir('*.water');
+            [~,index] = sortrows({H.datenum}.');
             H = H(index);
-            w = waitbar(1/length(H),['Collecting movie frames ... ']);
-            for i = 1:length(H)
+            W = W(index);
+            wb = waitbar(1/length(H),['Collecting movie frames ... ']);
+            for i = 2:length(H)
                 h = grd2GRIDobj(H(i).name);
-                [xm,ym] = getcoordinates(h);
-                axis off
-                surface(xm,ym,h.Z,'EdgeColor','none');colorbar
-                view(viewdir(1),viewdir(2))
-                axis equal
-                c = colorbar;
-                c.Label.String = 'Elevation (m)';
-                colormap(landcolor)
-                caxis([nanmin(B(:)),nanmax(B(:))])
+                w = grd2GRIDobj(W(i).name);
+                erossurf2(h,w);
                 title(['Time = ',num2str(t(i)),''])
                 x0=10;
                 y0=10;
@@ -399,11 +558,11 @@ else
                 height=1900;
                 set(gcf,'position',[x0,y0,width,height])
                 set(gcf,'Visible','off')
-                F(i) = getframe(gcf);
+                F(i-1) = getframe(gcf);
                 close all
                 waitbar(i/length(H))
             end
-            close(w)
+            close(wb)
             
     end
     
