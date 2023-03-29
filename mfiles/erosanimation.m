@@ -419,9 +419,9 @@ elseif strcmp(variable,'profile')
         flux = grd2GRIDobj(D(i).name,dem);
         flux.Z(flux.Z==0)=NaN;
         try
-            imageschs(dem2,flux,'colormap','invabyss','colorbarylabel','Water discharge (m^3/s)');
+            imageschs(dem2,flux,'colormap','flowcolor','colorbarylabel','Water discharge (m^3/s)');
         catch
-            imageschs(dem2,flux,'colormap','invabyss','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
+            imageschs(dem2,flux,'colormap','flowcolor','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
         end
         hold on;
         plot(x,y,'k')
