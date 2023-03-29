@@ -48,12 +48,12 @@ function [varargout] = erosinfo(variable)
 %          
 %       1. plot the outflux of sediment versus time
 %
-%           eros_template.m
-%           B = erosinfo('qs_out');
+%           LEM = eros
+%           qs_out = erosinfo('qs_out');
 %
 %       2. plot all variables in a 3-by-3 subplot
 %
-%           B = erosinfo('all');
+%           erosinfo('all');
 %
 % REFERENCES:
 %
@@ -70,6 +70,7 @@ function [varargout] = erosinfo(variable)
 %
 % Author: Juergen Mey (juemey[at]uni-potsdam.de)
 % Date: 4. June, 2020
+% Last update: 29. March 2023
 
 p = inputParser;
 expectedInput_variable = {'topo','water','q_in','q_out','qs_in','qs_out','slope',...
@@ -126,8 +127,6 @@ for i = 1:length(index)
     end
 end
 T = vertcat(Ta{:});
-% T(1,:)=[];
-% time = T{:,1};
 Stat.time = time;
 
 % figure
@@ -185,7 +184,7 @@ if allflag == 1
     xlim([time(1),time(end)]);
     xlabel('Time')
     ylabel('Sediment concentration, q_s/q')
-    legend('cs\_i_n','cs\_o_u_t')
+    legend('cs_i_n','cs_o_u_t')
     catch
     end
     
