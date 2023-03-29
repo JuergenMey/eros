@@ -1,6 +1,6 @@
 function [F] = erosanimation(variable,varargin)
 % Visualize output of the EROS landscape evolution model as animations (LEM)
-%
+% 
 %
 % The following function library is required, which can be downloaded
 % from e.g. the MATLAB file exchange:
@@ -9,7 +9,7 @@ function [F] = erosanimation(variable,varargin)
 %               models. (https://github.com/wschwanghart/topotoolbox)
 %
 %
-% SYNTAX
+% SYNTAX !Only works inside an eros output directory! 
 %
 %   F = erosanimation(variable)
 %   F = erosanimation(variable,pn,pv,...)
