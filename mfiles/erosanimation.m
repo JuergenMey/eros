@@ -143,7 +143,7 @@ switch variable
     case 'flux'
         filetype = 'flux';
         iylabel = 'Water discharge (m^3/s)';
-        colors = 'invabyss';
+        colors = 'flowcolor';
     case 'downward'
         filetype = 'downward';
         iylabel = 'Mean settling velocity (m/s)';
@@ -230,7 +230,11 @@ if strcmp(variable,'sprofile')
         subplot(2,1,2)
         flux = grd2GRIDobj(D(i).name,dem);
         flux.Z(flux.Z==0)=NaN;
-        imageschs(dem2,flux,'colormap','flowcolor','caxis',[nanmin(B(:)),nanmax(B(:))],'colorbarylabel','Water discharge (m^3/s)');
+        try
+            imageschs(dem2,flux,'colormap','flowcolor','colorbarylabel','Water discharge (m^3/s)');
+        catch
+            imageschs(dem2,flux,'colormap','flowcolor','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
+        end
         hold on;
         plot(S2,'k--')
 %         scatter(S2.x(marker),S2.y(marker),'k')
@@ -357,7 +361,7 @@ else
                 z = grd2GRIDobj(Z(i+1).name);
                 z.Z(z.Z==0)=NaN;
 %                 imageschs(h,z,'colormap',colors,'caxis',[0,1000],'colorbarylabel',iylabel);
-                imageschs(h,z,'colormap',colors,'caxis',[nanmin(B(:)),nanmax(B(:))],'colorbarylabel',iylabel);
+                imageschs(h,z,'colormap',colors,'colorbarylabel',iylabel);
                 %set(gca,'ColorScale','log')
                 title(['Time = ',num2str(t(i)),''])
                 x0=10;
