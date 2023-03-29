@@ -7,7 +7,7 @@ function [LEM] = eros(varargin)
 %     TopoToolbox - A MATLAB program for the analysis of digital elevation
 %               models. (https://github.com/wschwanghart/topotoolbox)
 %
-% Syntax
+% Syntax !bin folder needs to reside in the working directory!
 %
 %     LEM = eros
 %     LEM = eros(dem)
@@ -61,6 +61,7 @@ function [LEM] = eros(varargin)
 %                      of water and sediment inflows. First row is time,
 %                      second row is relative discharge wrt the rain-file
 %                      and third row is the absolute sediment concentration
+%     ...              description of more parameters will follow
 %     
 %
 % Output
