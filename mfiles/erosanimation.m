@@ -500,9 +500,9 @@ else
                 z = grd2GRIDobj(Z(i).name);
                 z.Z(z.Z==0)=NaN;
                 try
-                    imageschs(dem2,flux,'colormap','flowcolor','colorbarylabel','Water discharge (m^3/s)');
+                    imageschs(h,z,'colormap','flowcolor','colorbarylabel','Water discharge (m^3/s)');
                 catch
-                    imageschs(dem2,flux,'colormap','flowcolor','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
+                    imageschs(h,z,'colormap','flowcolor','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
                 end
                 title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
                 x0=10;
