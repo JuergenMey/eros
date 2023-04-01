@@ -73,20 +73,20 @@ function [LEM] = eros(varargin)
 %            topography and default rain (1 m/yr), uplift (0.002 m/yr) and 
 %            sediment thickness (2 m).   
 %
-%     LEM = eros;
-%     cd LEM.outfolder
-%     frames2gif(erosanimation('flux'),flux.gif,0.1);
+%            LEM = eros;
+%            cd LEM.outfolder
+%            frames2gif(erosanimation('flux'),flux.gif,0.1);
 %
 % Example 2: Simulation using a climate-file (i.e. inflow timeseries) 
 %     
-%     dem = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     A=zeros(11,3);
-%     A(:,1)=0:1000:10000;
-%     A(1:5,2)=ones(5,1)*1;
-%     A(6:11,2)=ones(6,1)*3;
-%     LEM = eros(dem,'climate',A)
-%     cd(LEM.outfolder)
-%     erosinfo('q_out');
+%            dem = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%            A=zeros(11,3);
+%            A(:,1)=0:1000:10000;
+%            A(1:5,2)=ones(5,1)*1;
+%            A(6:11,2)=ones(6,1)*3;
+%            LEM = eros(dem,'climate',A)
+%            cd(LEM.outfolder)
+%            erosinfo('q_out');
 %   
 %
 % References
@@ -116,6 +116,7 @@ default_experiment = 'run';                                                 % na
 default_model = 'eros';                                                     % model: eros or floodos
 default_eros_version = 'eros8.0.131M';                                      % model version
 default_outfolder = 'out\\out';                                             % output folder
+default_overwrite = 0;                                                      % overwrite ouput option
 default_inertia = 0;                                                        % inertia of precipitons (!computation time)
 
 % time
@@ -252,6 +253,7 @@ addParameter(p,'friction_model',default_friction_model,@(x) any(validatestring(x
 addParameter(p,'friction_coefficient',default_friction_coefficient,@isnumeric)
 addParameter(p,'flow_boundary',default_flow_boundary,@(x) any(validatestring(x,expectedInput_flow_boundary)))
 addParameter(p,'str_write',default_str_write,@ischar)
+addParameter(p,'overwrite',default_overwrite,@islogical)
 
 parse(p,varargin{:});
 LEM = p.Results;
@@ -309,16 +311,18 @@ if sum(LEM.climate(:)) ~= 0
     fclose(fileID);
 end
 
-% make sure nothing gets overwritten
-[~,~,Status]=mkdir(LEM.outfolder);
-i=1;
-while isempty(Status)==0
-    outpath = [LEM.outfolder,'_',num2str(i)];
-    [~,~,Status]=mkdir(outpath);
-    i=i+1;
-end
-if i>1
-    LEM.outfolder = outpath;
+% make sure nothing gets overwritten unless explicitly wanted
+if ~LEM.overwrite
+    [~,~,Status]=mkdir(LEM.outfolder);
+    i=1;
+    while isempty(Status)==0
+        outpath = [LEM.outfolder,'_',num2str(i)];
+        [~,~,Status]=mkdir(outpath);
+        i=i+1;
+    end
+    if i>1
+        LEM.outfolder = outpath;
+    end
 end
 
 % write input file (.arg)
