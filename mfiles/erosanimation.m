@@ -1,6 +1,6 @@
 function [F] = erosanimation(variable,varargin)
 % Visualize output of the EROS landscape evolution model as animations (LEM)
-% 
+%
 %
 % The following function library is required, which can be downloaded
 % from e.g. the MATLAB file exchange:
@@ -9,7 +9,7 @@ function [F] = erosanimation(variable,varargin)
 %               models. (https://github.com/wschwanghart/topotoolbox)
 %
 %
-% SYNTAX !Only works inside an eros output directory! 
+% SYNTAX !Only works inside an eros output directory!
 %
 %   F = erosanimation(variable)
 %   F = erosanimation(variable,pn,pv,...)
@@ -43,7 +43,7 @@ function [F] = erosanimation(variable,varargin)
 %                               a structure like the one created by eros.m
 %                  'sprofile'   stream long profile, second argument needs
 %                               to be a structure like the one created by
-%                               eros.m. 
+%                               eros.m.
 %                  LEM          Structure required only for 'profile' and
 %                               'sprofile'.
 %
@@ -51,13 +51,14 @@ function [F] = erosanimation(variable,varargin)
 %
 %   Parameter name/value pairs (pn,pv,...)
 %
-%   'flowmin'      Controls the initiation of streams in the STREAMobj 
-%                  (default: 100). Only works with 'sprofile'. 
+%   'flowmin'      Controls the initiation of streams in the STREAMobj
+%                  (default: 100). Only works with 'sprofile'.
 %
 %   'mode'         visualization mode (string) (default: 'movie2')
 %
 %                  'movie2'     2d movie of variable
 %                  'movie3'     3d movie of topographic evolution
+%                  'movie3rot'  rotating 3d view animation
 %
 %   'viewdir'      view geometry specified as 2-element vector of azimuth
 %                  and elevation (default: [45,45])
@@ -77,7 +78,7 @@ function [F] = erosanimation(variable,varargin)
 %           F = erosanimation('flux');
 %           frames2gif(B,'flux.gif',0.1)
 %
-%       2. make an 3d-animation of topography with sediment overlay            
+%       2. make an 3d-animation of topography with sediment overlay
 %           LEM = eros;
 %           F = erosanmimation('sediment','mode','movie3');
 %           frames2gif(F,'sed3.gif',0.1)
@@ -118,13 +119,22 @@ if strcmp(variable,'sprofile') || strcmp(variable,'profile')
     uplift = p.Results.LEM.uplift;
 else
     default_mode = 'movie2';
-    expectedInput_mode = {'movie2','movie3'};
+    default_subset = false;
+    default_viewdir = [0,45];
+    default_rotangle = 360;
+    default_rotincrement = 0.5;
+    expectedInput_mode = {'movie2','movie3','movie3rot'};
     addParameter(p,'mode',default_mode,@(x) any(validatestring(x,expectedInput_mode)));
-    default_viewdir = [45,45];
+    addParameter(p,'subset',default_subset, @islogical)
     addParameter(p,'viewdir',default_viewdir,@isnumeric);
+    addParameter(p,'rotangle',default_rotangle, @(x) x>=0 && x<=360);
+    addParameter(p,'rotincrement',default_rotincrement,@isnumeric);
     parse(p,variable,varargin{:});
     mode = p.Results.mode;
+    subset = p.Results.subset;
     viewdir = p.Results.viewdir;
+    rotangle = p.Results.rotangle;
+    rotincrement = p.Results.rotincrement;
 end
 
 
@@ -181,7 +191,7 @@ switch variable
 end
 
 if strcmp(variable,'sprofile')
-    
+
     % time vector
     T = dir('*.txt');
     [~,index] = sortrows({T.datenum}.');
@@ -196,19 +206,19 @@ if strcmp(variable,'sprofile')
         end
     end
     T = vertcat(Ta{:});
-    
+
     % boundary conditions
     cols = contains(T.Properties.VariableNames,'q_');
     q = T{:,cols};
     cols = contains(T.Properties.VariableNames,'qs')|contains(T.Properties.VariableNames,'cs');
     cs = T{:,cols};
-    
+
     % output times
     tid = ~strcmp(T{:,end},'-');
     t = time(tid);
     qt = q(tid,:);
     cst = cs(tid,:);
-    
+
     FD = FLOWobj(dem,'preprocess','c');
     S = STREAMobj(FD,flowacc(FD)>flowmin);
     h =figure;
@@ -218,7 +228,7 @@ if strcmp(variable,'sprofile')
     W = dir('*.water');
     S = dir('*.sed');
     D = dir('*.flux');
-    
+
     [~,index] = sortrows({H.datenum}.');
     H = H(index);
     W = W(index);
@@ -230,8 +240,8 @@ if strcmp(variable,'sprofile')
         sed = dem;
         sed.Z = zeros(dem.size);
     end
-    
-    
+
+
     w = waitbar(1/length(H),['Collecting movie frames ... ']);
     for i=1:length(H)
         figure;
@@ -246,7 +256,7 @@ if strcmp(variable,'sprofile')
         plotdz(S2,dem,'color',[0.9 0.9 0.9]);hold on % initial river profile
         plotdz(S2,dem-sed,'color',[0.7 0.7 0.7]) % initial bedrock profile
         plotdz(S2,dem2+water2,'color',[0 0.61 1]) % water surface
-        
+
         plotdz(S2,dem2,'color',[1 0.5 0.1]);hold on % updated river profile
         plotdz(S2,dem2-sed2,'color','k')    % updated bedrock profile
         xlim([0 S2.distance(end)])
@@ -263,7 +273,7 @@ if strcmp(variable,'sprofile')
         height=1900;
         set(gcf,'position',[x0,y0,width,height])
         set(gcf,'Visible','off')
-        
+
         subplot(2,2,3)
         plot(time,q(:,1));
         hold on
@@ -276,7 +286,7 @@ if strcmp(variable,'sprofile')
         ylabel('Water flux (m^3s^-^1)')
         xlim([0 max(time)])
         legend('q\_in')
-        
+
         subplot(2,2,4)
         plot(time,cs);
         hold on
@@ -301,7 +311,7 @@ if strcmp(variable,'sprofile')
     end
     close(w)
 elseif strcmp(variable,'profile')
-    
+
     % time vector
     T = dir('*.txt');
     [~,index] = sortrows({T.datenum}.');
@@ -316,13 +326,13 @@ elseif strcmp(variable,'profile')
         end
     end
     T = vertcat(Ta{:});
-    
+
     % boundary conditions
     cols = contains(T.Properties.VariableNames,'q_');
     q = T{:,cols};
     cols = contains(T.Properties.VariableNames,'qs')|contains(T.Properties.VariableNames,'cs');
     cs = T{:,cols};
-    
+
     % output times
     tid = ~strcmp(T{:,end},'-');
     t = time(tid);
@@ -332,8 +342,8 @@ elseif strcmp(variable,'profile')
     W = dir('*.water');
     S = dir('*.sed');
     D = dir('*.flux');
-    
-    
+
+
     [~,index] = sortrows({H.datenum}.');
     H = H(index);
     W = W(index);
@@ -345,7 +355,7 @@ elseif strcmp(variable,'profile')
         sed = dem;
         sed.Z = zeros(dem.size);
     end
-    
+
     [d,~,x,y] = demprofile(dem);            % distance, x and y values of the profile
     [~,urate] = demprofile(uplift,[],x,y);  % uplift rates along the profile
     close all
@@ -370,7 +380,7 @@ elseif strcmp(variable,'profile')
         [~,hz(:,i)] = demprofile(dem2,[],x,y);   % topography
         [~,wz] = demprofile(water2,[],x,y); % water surface
         [~,sz] = demprofile(sed2,[],x,y);   % sediment thickness
-        
+
         f = size(hz,2):-1:1;
         ff = ones(size(hz));
         ufac = (f-1.*ff).*1e+3;
@@ -388,7 +398,7 @@ elseif strcmp(variable,'profile')
         title([num2str(i),' kyr'])
         xlabel('Distance (m)')
         ylabel('Elevation (m)');
-        
+
         subplot(3,3,[4])
         plot(time,q(:,1),'color',[0 0.61 1]);
         hold on
@@ -402,7 +412,7 @@ elseif strcmp(variable,'profile')
         legend('q\_in','Location','southwest')
         xlim([0 max(time)])
         legend('boxoff');
-        
+
         subplot(3,3,[7])
         h=plot(t,cst(:,1));
         cd1 = uint8(color'*255); % need a 4xN uint8 array
@@ -461,13 +471,13 @@ else
         end
     end
     T = vertcat(Ta{:});
-    
+
     % boundary conditions
     cols = contains(T.Properties.VariableNames,'q_');
     q = T{:,cols};
     cols = contains(T.Properties.VariableNames,'qs')|contains(T.Properties.VariableNames,'cs');
     cs = T{:,cols};
-    
+
     % variable
     Z = dir(['*.',filetype]);
     t=1:length(Z);
@@ -478,13 +488,13 @@ else
         z(z==0)=NaN;
         B(:,:,i) = z;
     end
-    
+
     % output times
     tid = ~strcmp(T{:,end},'-');
     t = time(tid);
     qt = q(tid,:);
     cst = cs(tid,:);
-    
+
     switch mode
         case 'movie2'
             H = dir('*.alt');
@@ -500,9 +510,9 @@ else
                 z = grd2GRIDobj(Z(i).name);
                 z.Z(z.Z==0)=NaN;
                 try
-                    imageschs(h,z,'colormap','flowcolor','colorbarylabel','Water discharge (m^3/s)');
+                    imageschs(h,z,'colormap',colors,'colorbarylabel',iylabel);
                 catch
-                    imageschs(h,z,'colormap','flowcolor','caxis',[0,100],'colorbarylabel','Water discharge (m^3/s)');
+                    imageschs(h,z,'colormap',colors,'caxis',[0,100],'colorbarylabel',iylabel);
                 end
                 title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
                 x0=10;
@@ -511,7 +521,7 @@ else
                 height=1900;
                 set(gcf,'position',[x0,y0,width,height])
                 set(gcf,'Visible','off')
-                
+
                 subplot(2,2,3)
                 plot(time,q(:,1));
                 hold on
@@ -523,7 +533,7 @@ else
                 xlabel('Time')
                 ylabel('Water flux (m^3s^-^1)')
                 legend('q\_in')
-                
+
                 if ~isempty(cs)
                     subplot(2,2,4)
                     plot(time,cs);
@@ -548,7 +558,7 @@ else
                 waitbar(i/length(H))
             end
             close(w)
-            
+
         case 'movie3'
             H = dir('*.alt');
             W = dir(['*.',filetype]);
@@ -560,7 +570,8 @@ else
                 h = grd2GRIDobj(H(i).name);
                 w = grd2GRIDobj(W(i).name);
                 erossurf2(h,w);
-                title(['Time = ',num2str(t(i)),''])
+                view(viewdir)
+                title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
                 x0=10;
                 y0=10;
                 width=2200;
@@ -572,8 +583,46 @@ else
                 waitbar(i/length(H))
             end
             close(wb)
-            
+        case 'movie3rot'
+            H = dir('*.alt');
+            W = dir(['*.',filetype]);
+            [~,index] = sortrows({H.datenum}.');
+            H = H(index);
+            W = W(index);
+            if subset == true
+                hh = grd2GRIDobj(H(1).name);
+                hh = crop(hh,'interactive');
+            end
+            azi = 0;
+            B = mod(0:rotangle/rotincrement,length(index)-2)+2;
+            j = 1;
+            wb = waitbar(1/length(B),['Collecting movie frames ... ']);
+            for i = B
+                h = grd2GRIDobj(H(i).name);
+                w = grd2GRIDobj(W(i).name);
+                if subset == true
+                    h = resample(h,hh);
+                    w = resample(w,hh);
+                end
+                erossurf2(h,w);
+                colormap(colors)
+                title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
+                x0=10;
+                y0=10;
+                width=2200;
+                height=1900;
+                set(gcf,'position',[x0,y0,width,height])
+                azi = azi-rotincrement;
+                view(azi, 45)
+                set(gcf,'Visible','off')
+                F(j) = getframe(gcf);
+                close all
+                waitbar(j/length(B))
+                j = j+1;
+            end
+            close(wb)
+
     end
-    
-    
+
+
 end
