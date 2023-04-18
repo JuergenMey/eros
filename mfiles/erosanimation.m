@@ -60,9 +60,19 @@ function [F] = erosanimation(variable,varargin)
 %                  'movie3'     3d movie of topographic evolution
 %                  'movie3rot'  rotating 3d view animation
 %
+%   'subset'       interactively define a subset for the animations 
+%                  (default: false)
+%
 %   'viewdir'      view geometry specified as 2-element vector of azimuth
-%                  and elevation (default: [45,45])
+%                  and elevation (default: [-45,35])
 %                  only aplies to mode 'movie3'
+%
+%   'rotangle'     specifies the total rotation angle (default: 360)
+%                  only aplies to mode 'movie3rot'
+%
+%   'rotincrement' specifies the angle between each frame (default: 0.5)
+%                  only aplies to mode 'movie3rot'
+%     
 %
 % OUTPUT
 %
@@ -87,6 +97,12 @@ function [F] = erosanimation(variable,varargin)
 %           LEM = eros;
 %           F = erosanmimation('sprofile',LEM,'flowmin',1000);
 %           frames2gif(F,'longprofile.gif,0.1)
+%
+%       4. rotating 3d-animation of custom subset with water depth overlay
+%           LEM = eros;
+%           F = erosanmimation('water','mode','movie3rot','subset',true,...
+%                               'rotangle',90,'rotincrement,2);
+%           frames2gif(F,'rot.gif',0.1)
 %
 % REFERENCES:
 %
@@ -120,7 +136,7 @@ if strcmp(variable,'sprofile') || strcmp(variable,'profile')
 else
     default_mode = 'movie2';
     default_subset = false;
-    default_viewdir = [0,45];
+    default_viewdir = [-45,35];
     default_rotangle = 360;
     default_rotincrement = 0.5;
     expectedInput_mode = {'movie2','movie3','movie3rot'};
@@ -147,7 +163,7 @@ switch variable
     case 'sediment'
         filetype = 'sed';
         iylabel = 'Sediment thickness (m)';
-        colors = 'jet';
+        colors = 'flowcolor';
     case 'water'
         filetype = 'water';
         iylabel = 'Water depth (m)';
@@ -502,6 +518,10 @@ else
             [~,index] = sortrows({H.datenum}.');
             H = H(index);
             Z = Z(index);
+            if subset == true
+                hh = grd2GRIDobj(H(1).name);
+                hh = crop(hh,'interactive');
+            end
             w = waitbar(1/length(H),['Collecting movie frames ... ']);
             for i = 1:length(H)
                 figure
@@ -509,6 +529,10 @@ else
                 h = grd2GRIDobj(H(i).name);
                 z = grd2GRIDobj(Z(i).name);
                 z.Z(z.Z==0)=NaN;
+                if subset == true
+                    h = resample(h,hh);
+                    z = resample(z,hh);
+                end
                 try
                     imageschs(h,z,'colormap',colors,'colorbarylabel',iylabel);
                 catch
@@ -565,11 +589,20 @@ else
             [~,index] = sortrows({H.datenum}.');
             H = H(index);
             W = W(index);
+            if subset == true
+                hh = grd2GRIDobj(H(1).name);
+                hh = crop(hh,'interactive');
+            end
             wb = waitbar(1/length(H),['Collecting movie frames ... ']);
             for i = 2:length(H)
                 h = grd2GRIDobj(H(i).name);
                 w = grd2GRIDobj(W(i).name);
+                if subset == true
+                    h = resample(h,hh);
+                    w = resample(w,hh);
+                end
                 erossurf2(h,w);
+                colormap(colors)
                 view(viewdir)
                 title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
                 x0=10;
