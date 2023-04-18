@@ -103,7 +103,7 @@ function [F] = erosanimation(variable,varargin)
 %
 % Author: Juergen Mey (juemey[at]uni-potsdam.de)
 % Date: 28. May, 2020
-% Last update: 29. March 2023
+% Last update: 05. April 2023
 
 p = inputParser;
 expectedInput_variable = {'topo','water','sediment','flux','qs',...
