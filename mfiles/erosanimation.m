@@ -538,7 +538,7 @@ else
                 catch
                     imageschs(h,z,'colormap',colors,'caxis',[0,100],'colorbarylabel',iylabel);
                 end
-                title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
+                title([sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
                 x0=10;
                 y0=10;
                 width=2200;
@@ -604,7 +604,7 @@ else
                 erossurf2(h,w);
                 colormap(colors)
                 view(viewdir)
-                title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
+                title([sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
                 x0=10;
                 y0=10;
                 width=2200;
@@ -639,7 +639,7 @@ else
                 end
                 erossurf2(h,w);
                 colormap(colors)
-                title(['Time = ',sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
+                title([sprintf('%1.0f',round(t(i)/1e+3,1)),' kyrs'])
                 x0=10;
                 y0=10;
                 width=2200;
