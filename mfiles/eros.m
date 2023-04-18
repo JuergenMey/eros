@@ -116,7 +116,7 @@ default_experiment = 'run';                                                 % na
 default_model = 'eros';                                                     % model: eros or floodos
 default_eros_version = 'eros8.0.131M';                                      % model version
 default_outfolder = 'out\\out';                                             % output folder
-default_overwrite = 0;                                                      % overwrite ouput option
+default_overwrite = false;                                                      % overwrite ouput option
 default_inertia = 0;                                                        % inertia of precipitons (!computation time)
 
 % time
@@ -300,6 +300,7 @@ GRIDobj2grd(LEM.sediment,['./Topo/',LEM.dem.name,'.sed']);
 GRIDobj2grd(LEM.uplift,['./Topo/',LEM.dem.name,'.uplift']);
 GRIDobj2grd(LEM.rain,['./Topo/',LEM.dem.name,'.rain']);
 GRIDobj2grd(LEM.water,['./Topo/',LEM.dem.name,'.water']);
+GRIDobj2grd(LEM.cs,['./Topo/',LEM.dem.name,'.cs']);
 
 % climate
 if sum(LEM.climate(:)) ~= 0
