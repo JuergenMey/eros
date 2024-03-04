@@ -6,5 +6,6 @@ calculate river hydrodynamics, with applications to flood prediction,
 landscape evolution models, and braiding instabilities. Journal of 
 geophysical research: earth surface, 122(8), 1491-1512.
 
+EROS only works on Windows OS.
 
 
