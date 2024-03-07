@@ -75,7 +75,7 @@ function [LEM] = eros(varargin)
 %
 %            LEM = eros;
 %            cd LEM.outfolder
-%            frames2gif(erosanimation('flux'),flux.gif,0.1);
+%            frames2gif(erosanimation('flux'),'flux.gif',0.1);
 %
 % Example 2: Simulation using a climate-file (i.e. inflow timeseries) 
 %     
