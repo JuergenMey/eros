@@ -86,22 +86,22 @@ function [F] = erosanimation(variable,varargin)
 %          frames to construct an animated .gif
 %           LEM = eros;
 %           F = erosanimation('flux');
-%           frames2gif(B,'flux.gif',0.1)
+%           frames2gif(F,'flux.gif',0.1)
 %
 %       2. make an 3d-animation of topography with sediment overlay
 %           LEM = eros;
-%           F = erosanmimation('sediment','mode','movie3');
+%           F = erosanimation('sediment','mode','movie3');
 %           frames2gif(F,'sed3.gif',0.1)
 %
 %       3. long-profile evolution
 %           LEM = eros;
-%           F = erosanmimation('sprofile',LEM,'flowmin',1000);
-%           frames2gif(F,'longprofile.gif,0.1)
+%           F = erosanimation('sprofile',LEM,'flowmin',1000);
+%           frames2gif(F,'longprofile.gif',0.1)
 %
 %       4. rotating 3d-animation of custom subset with water depth overlay
 %           LEM = eros;
-%           F = erosanmimation('water','mode','movie3rot','subset',true,...
-%                               'rotangle',90,'rotincrement,2);
+%          F = erosanimation('water','mode','movie3rot','subset',true,...
+%                             'rotangle',90,'rotincrement',2);
 %           frames2gif(F,'rot.gif',0.1)
 %
 % REFERENCES:
