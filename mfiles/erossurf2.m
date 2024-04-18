@@ -1,7 +1,7 @@
 function erossurf2(DEM,W)
 
 surf(DEM+W,min(W,5), 'block', true, 'baselevel',250); 
-exaggerate(gca,2)
+exaggerate(gca,1.5)
 camlight
 material dull
 axis off
