@@ -46,7 +46,7 @@ function [LEM] = eros(varargin)
 %                      If a single number is passed it will be 
 %                      interpreted as spatially uniform uplift.                     
 %     cs               number (default: 0) or GRIDobj. Volumetric sediment 
-%                      concentration at the inlets (q/qs). 
+%                      concentration at the inlets (qs/q). 
 %     sediment         number (default: 2) or GRIDobj. [m]. Sediment 
 %                      thickness. A single value will be interpreted as a
 %                      uniform sediment thickness distribution.
@@ -277,6 +277,7 @@ end
 if isnumeric(LEM.uplift)
     uplift = LEM.dem;
     uplift.Z = ones(uplift.size)*p.Results.uplift;
+    uplift.Z(:,1) = 0;uplift.Z(:,end) = 0;uplift.Z(1,:) = 0;uplift.Z(end,:) = 0;
     LEM.uplift = uplift;
 end
 if isnumeric(LEM.cs)
